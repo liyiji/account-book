@@ -40,6 +40,8 @@ private:
     /// 如果bManual == true，则弹出对话框，告知用户是否成功
     void backupDatabaseFile(bool bManual);
 
+    void exportTransactionsAsTextFile(bool bNotice);
+
 private slots:
     void slotMenuAction(QAction *);
 

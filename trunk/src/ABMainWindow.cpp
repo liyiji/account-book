@@ -3,11 +3,14 @@
 
 #include <QDir>
 #include <QSqlQuery>
-#include <QMessageBox>
 #include <QKeyEvent>
+#include <QTextStream>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QCloseEvent>
 
 #include "ABMainWindow.h"
+#include "ABDefines.h"
 #include "ABFunction.h"
 #include "ABSqlQuery.h"
 //#include "ABInputPassword.h"
@@ -101,8 +104,8 @@ void ABMainWindow::initUi()
     setWindowTitle(strWindowTitle);
 
 #ifndef DEBUG_VERSION
-    ui->menuImport_Export->setEnabled(false);
-    ui->actionExport_Data_As_Text_File->setEnabled(false);
+//    ui->menuImport_Export->setEnabled(false);
+//    ui->actionExport_Data_As_Text_File->setEnabled(false);
     ui->actionImport_another_data_file->setEnabled(false);
     ui->actionOptions->setEnabled(false);
     ui->actionSet_Password->setEnabled(false);
@@ -746,8 +749,10 @@ void ABMainWindow::backupDatabaseFile(bool bManual)
         if (isBackupDatabaseFile(fileName)) {
             i++;
         } else {
-            QString strFileName = g_WorkDir + g_BackupDir + sl.at(i);
-            QFile::remove(strFileName);
+            if (fileName.endsWith(".db")) {
+                QString strFileName = g_WorkDir + g_BackupDir + sl.at(i);
+                QFile::remove(strFileName);
+            }
             sl.removeAt(i);
         }
     }
@@ -778,6 +783,38 @@ void ABMainWindow::backupDatabaseFile(bool bManual)
     }
 }
 
+void ABMainWindow::exportTransactionsAsTextFile(bool bNotice)
+{
+    extern QString g_WorkDir;
+    QString initDir = g_WorkDir + g_BackupDir;
+
+    QString strFilename = QFileDialog::getSaveFileName(0,
+                                                       "Save as",
+                                                       initDir,
+                                                       QString("*.txt"));
+
+    if (!strFilename.isEmpty()) {
+        QStringList transactions = transactionList(/*beginYear, beginMonth, beginDay, beginHour, beginMinute,
+                                                   endYear, endMonth, endDay, endHour, endMinute*/);
+
+        QFile f(strFilename);
+        f.open(QFile::WriteOnly);
+        QTextStream ts(&f);
+        ts << "Transaction count is : " << transactions.count() << "\n\n";
+
+        for (int i = 0; i < transactions.count(); i++) {
+            ts << transactions.at(i) << "\n";
+        }
+        f.close();
+    }
+
+    if (bNotice) {
+        QMessageBox::about(this,
+                           "Succeed",
+                           "Export text file done.");
+    }
+}
+
 void ABMainWindow::slotMenuAction(QAction *action)
 {
     if (action == ui->actionExit) {
@@ -786,9 +823,11 @@ void ABMainWindow::slotMenuAction(QAction *action)
         slotResizeColumnsAndRow();
     } else if (action == ui->actionAbout_accountBook) {
         /// TODO : ÍêÉÆ
-        QMessageBox::about(this, "About", "An account book small software, by Chipgenius.");
+        QMessageBox::about(this, "About", "An account book small software, by Li Yiji.");
     } else if (action == ui->actionBackup_Data_File) {
         backupDatabaseFile(true);
+    } else if (action == ui->actionExport_Data_As_Text_File) {
+        exportTransactionsAsTextFile(true);
     }
 }
 
