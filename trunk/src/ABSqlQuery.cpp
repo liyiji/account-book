@@ -1,6 +1,7 @@
 
 #include <cassert>
 
+#include <QDebug>
 #include <QVariant>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -453,9 +454,9 @@ void deleteItemInTransaction(QString Type,
 void renameAccount(QString oriName, QString newName)
 {
     if (oriName == g_Cash ||
-        oriName.isEmpty() ||
-        newName.isEmpty() ||
-        oriName == newName) {
+            oriName.isEmpty() ||
+            newName.isEmpty() ||
+            oriName == newName) {
         warnMsgParameterInvalid();
         return;
     }
@@ -748,15 +749,15 @@ QVector<ABCategory> categoryList(QString bigType)
     QSqlQuery queryIncome, queryExpense;
     QString strQueryIncome, strQueryExpense;
     strQueryIncome = QString("SELECT * FROM ")
-                     + TableNameCategory
-                     + QString(" WHERE BigType = '")
-                     + g_Income
-                     + QString("' ORDER BY MidType, SmallType");
+            + TableNameCategory
+            + QString(" WHERE BigType = '")
+            + g_Income
+            + QString("' ORDER BY MidType, SmallType");
     strQueryExpense = QString("SELECT * FROM ")
-                      + TableNameCategory
-                      + QString(" WHERE BigType = '")
-                      + g_Expense
-                      + QString("' ORDER BY MidType, SmallType");
+            + TableNameCategory
+            + QString(" WHERE BigType = '")
+            + g_Expense
+            + QString("' ORDER BY MidType, SmallType");
     if (bigType.isEmpty() || bigType == g_Income) {
         if (!queryIncome.exec(strQueryIncome)) warnMsgDatabaseOperationFailed();
         while (queryIncome.next()) {
@@ -792,10 +793,10 @@ QStringList midTypeList(QString bigType)
     QSqlQuery q1;
     QString s1;
     s1 = QString("SELECT DISTINCT MidType FROM ")
-         + TableNameCategory
-         + QString(" WHERE BigType = '")
-         + bigType
-         + QString("' ORDER BY MidType");
+            + TableNameCategory
+            + QString(" WHERE BigType = '")
+            + bigType
+            + QString("' ORDER BY MidType");
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
     while (q1.next()) {
         sl.append(q1.value(0).toString());
@@ -815,17 +816,173 @@ QStringList smallTypeList(QString bigType, QString midType)
     QSqlQuery q1;
     QString s1;
     s1 = QString("SELECT DISTINCT SmallType FROM ")
-         + TableNameCategory
-         + QString(" WHERE BigType = '")
-         + bigType
-         + QString("' AND MidType = '")
-         + midType
-         + QString("' ORDER BY SmallType");
+            + TableNameCategory
+            + QString(" WHERE BigType = '")
+            + bigType
+            + QString("' AND MidType = '")
+            + midType
+            + QString("' ORDER BY SmallType");
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
     while (q1.next()) {
         sl.append(q1.value(0).toString());
     }
 
+    return sl;
+}
+
+QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beginHour, int beginMinute,
+                            int endYear, int endMonth, int endDay, int endHour, int endMinute)
+{
+    QStringList sl;
+
+    QSqlQuery q1;
+    QString s1;
+    s1 = QString("SELECT * FROM ")
+            + TableNameTransaction
+
+            + QString(" WHERE Year >= ")
+            + QString::number(beginYear)
+            + QString(" AND Year <= ")
+            + QString::number(endYear)
+
+            + QString(" AND Month >= ")
+            + QString::number(beginMonth)
+            + QString(" AND Month <= ")
+            + QString::number(endMonth)
+
+            + QString(" AND Day >= ")
+            + QString::number(beginDay)
+            + QString(" AND Day <= ")
+            + QString::number(endDay)
+
+            + QString(" AND Hour >= ")
+            + QString::number(beginHour)
+            + QString(" AND Hour <= ")
+            + QString::number(endHour)
+
+            + QString(" AND Minute >= ")
+            + QString::number(beginMinute)
+            + QString(" AND Minute <= ")
+            + QString::number(endMinute)
+
+            + QString(" ORDER BY Year, Month, Day, Hour, Minute");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+    int bigMax = 0;
+    int midMax = 0;
+    int smallMax = 0;
+    int sumMax = 0;
+    int fromMax = 0;
+    int toMax = 0;
+    int detailMax = 0;
+    QStringList slBig, slMid, slSmall, slDt, slSum, slFrom, slTo, slDetail;
+
+    while (q1.next()) {
+        QString bigType = q1.value(0).toString();
+        QString midType = q1.value(1).toString();
+        QString smallType = q1.value(2).toString();
+        int year = q1.value(3).toInt();
+        int month = q1.value(4).toInt();
+        int day = q1.value(5).toInt();
+        int hour = q1.value(6).toInt();
+        int minute = q1.value(7).toInt();
+        float sum = q1.value(8).toDouble();
+        QString fromAccount = q1.value(9).toString();
+        QString toAccount = q1.value(10).toString();
+        QString detail = q1.value(11).toString();
+
+        QString dt = YMDHM2yyyymmddhhmm(year, month, day, hour, minute);
+        QString sSum = getMoneyFormNumber(sum);
+
+        if (bigMax < bigType.count())
+            bigMax = bigType.count();
+        if (midMax < midType.count())
+            midMax = midType.count();
+        if (smallMax < smallType.count())
+            smallMax = smallType.count();
+        if (sumMax < sSum.count())
+            sumMax = sSum.count();
+        if (fromMax < fromAccount.count())
+            fromMax = fromAccount.count();
+        if (toMax < toAccount.count())
+            toMax = toAccount.count();
+        if (detailMax < detail.count())
+            detailMax = detail.count();
+
+        slBig.append(bigType);
+        slMid.append(midType);
+        slSmall.append(smallType);
+        slDt.append(dt);
+        slSum.append(sSum);
+        slFrom.append(fromAccount);
+        slTo.append(toAccount);
+        slDetail.append(detail);
+    }
+
+    for (int i = 0; i < slBig.count(); i++) {
+        QString type;
+        type.append(slBig.at(i));
+        if (slBig.at(i).count() < bigMax) {
+            int j = bigMax - slBig.at(i).count();
+            for (int k = 0; k < j; k++) {
+                type.append(" ");
+            }
+        }
+        type.append(CategorySeparator);
+        type.append(slMid.at(i));
+        if (slMid.at(i).count() < midMax) {
+            int j = midMax - slMid.at(i).count();
+            for (int k = 0; k < j; k++) {
+                type.append(" ");
+            }
+        }
+        type.append(CategorySeparator);
+        type.append(slSmall.at(i));
+        if (slSmall.at(i).count() < smallMax) {
+            int j = smallMax - slSmall.at(i).count();
+            for (int k = 0; k < j; k++) {
+                type.append(" ");
+            }
+        }
+
+        QString fromTo;
+        fromTo.append(slFrom.at(i));
+        if (slFrom.at(i).count() < fromMax) {
+            int j = fromMax - slFrom.at(i).count();
+            for (int k = 0; k < j; k++) {
+                fromTo.append(" ");
+            }
+        }
+        fromTo.append(CategorySeparator);
+        fromTo.append(slTo.at(i));
+        if (slTo.at(i).count() < toMax) {
+            int j = toMax - slTo.at(i).count();
+            for (int k = 0; k < j; k++) {
+                fromTo.append(" ");
+            }
+        }
+
+        QString sSum;
+        if (slSum.at(i).count() < sumMax) {
+            int j = sumMax - slSum.at(i).count();
+            for (int k = 0; k < j; k++) {
+                sSum.append(" ");
+            }
+        }
+        sSum.append(slSum.at(i));
+
+
+        QString tran = slDt.at(i)
+                + QString(" ")
+                + type
+                + QString("\t")
+                + sSum
+                + QString("\t")
+                + fromTo
+                + QString("\t")
+                + slDetail.at(i);
+
+        sl.append(tran);
+    }
     return sl;
 }
 
