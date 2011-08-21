@@ -9,6 +9,7 @@ class ABTransactionDetail : public QDialog {
 
     Ui_ABTransactionDetailDialog *ui;
     TransactionType m_dialogType;
+    bool            m_bDataChanged;
 
 public:
     QString m_strCategory;
@@ -35,6 +36,8 @@ public:
 
     QString         getTypeStr();
     TransactionType getType();
+
+    bool            isDataChanged();
 
 private:
     void initUiByType(TransactionType dialogType);

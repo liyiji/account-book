@@ -26,12 +26,12 @@ private:
     void initConnection();
     void loadData(int iYear, QString strMonth);
     void showTransactionData(int iYear, QString strMonth);
-    void showAccountData();
     void showCategoryData(int iYear, QString strMonth);
-    void resetTableWidgetsSettings(bool bTableWidget   = false,
-                                   bool bTableWidget_2 = false,
-                                   bool bTableWidget_3 = false,
-                                   bool bTableWidget_4 = false);
+    void showAccountData(QDateTime dt);
+    void resetTableWidgetsSettings(bool bTableAccount   = false,
+                                   bool btableIncome    = false,
+                                   bool btableExpense   = false,
+                                   bool btableLiquidity = false);
     QTreeWidgetItem* searchItemInStatisticsTree(QString bigType, QString midType = g_Default, QString smallType = g_Default);
     void resizeTableWidgetAccount();
     void resizeTableWidgetIncomeExpenseLiquidity();
@@ -59,6 +59,10 @@ private slots:
     void slotShowBigTypeInTree();
     void slotShowMidTypeInTree();
     void slotShowSmallTypeInTree();
+
+    void slotDoubleClickTableTransaction(QTableWidgetItem*);
+    void slotReloadCurTimeAccountStatus();
+    void slotReloadAccountStatusByDataTime(QDateTime);
 };
 
 #endif // ABMAINWINDOW_H

@@ -41,6 +41,7 @@ ABTransactionDetail::ABTransactionDetail(TransactionType dialogType, QWidget *pa
     m_strDetail         = ui->lineEdit->text();
     m_bNewCategory      = false;
     m_bNewToAccount     = false;
+    m_bDataChanged      = false;
 
     initConnection();
 
@@ -116,6 +117,8 @@ void ABTransactionDetail::setInitData(QDate date,
     } else {
         assert(0);
     }
+
+    m_bDataChanged = false;
 }
 
 
@@ -136,6 +139,11 @@ QString ABTransactionDetail::getTypeStr()
 TransactionType ABTransactionDetail::getType()
 {
     return m_dialogType;
+}
+
+bool ABTransactionDetail::isDataChanged()
+{
+    return m_bDataChanged;
 }
 
 void ABTransactionDetail::initUiByType(TransactionType dialogType)
@@ -285,6 +293,8 @@ void ABTransactionDetail::initUiByType(TransactionType dialogType)
 
 void ABTransactionDetail::initConnection()
 {
+    m_bDataChanged = false;
+
     connect(ui->calendarWidget, SIGNAL(selectionChanged()), this, SLOT(slotChangeDataSpinValue()));
     connect(ui->calendarWidget, SIGNAL(currentPageChanged(int,int)), this, SLOT(slotCalenderWidgetPageChange()));
     connect(ui->pushButton, SIGNAL(released()), this, SLOT(slotSelectCalenderWidget()));
@@ -321,6 +331,22 @@ void ABTransactionDetail::accept()
         /// 检查参数正确性
         if (m_fSum == 0.0) {
             errMsgList.append("Error : Sum is 0.");
+            bFoundError = true;
+        }
+        if (m_iYear > QDate::currentDate().year()) {
+            errMsgList.append("Error : Transaction occurs in future.");
+            bFoundError = true;
+        } else if (m_iMonth > QDate::currentDate().month()) {
+            errMsgList.append("Error : Transaction occurs in future.");
+            bFoundError = true;
+        } else if (m_iDay > QDate::currentDate().day()) {
+            errMsgList.append("Error : Transaction occurs in future.");
+            bFoundError = true;
+        } else if (m_iHour > QTime::currentTime().hour()) {
+            errMsgList.append("Error : Transaction occurs in future.");
+            bFoundError = true;
+        } else if (m_iMinute > QTime::currentTime().minute()) {
+            errMsgList.append("Error : Transaction occurs in future.");
             bFoundError = true;
         }
         if (m_dialogType == Income) {
@@ -394,6 +420,7 @@ void ABTransactionDetail::accept()
 void ABTransactionDetail::slotChangeDataSpinValue()
 {
     ui->dateEdit->setDate(ui->calendarWidget->selectedDate());
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotSelectCalenderWidget()
@@ -401,6 +428,7 @@ void ABTransactionDetail::slotSelectCalenderWidget()
     QDate curDate = QDate::currentDate();
     ui->calendarWidget->setCurrentPage(curDate.year(), curDate.month());
     ui->calendarWidget->setSelectedDate(curDate);
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotCalenderWidgetPageChange()
@@ -414,6 +442,7 @@ void ABTransactionDetail::slotCalenderWidgetPageChange()
 
     dateOfDateEdit.setYMD(ui->calendarWidget->yearShown(), ui->calendarWidget->monthShown(), changedDay);
     ui->dateEdit->setDate(dateOfDateEdit);
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotChangeDate(QDate dt)
@@ -421,22 +450,26 @@ void ABTransactionDetail::slotChangeDate(QDate dt)
     m_iYear  = dt.year();
     m_iMonth = dt.month();
     m_iDay   = dt.day();
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotChangeTime(QTime tm)
 {
     m_iHour = tm.hour();
     m_iMinute = tm.minute();
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotChangeSum(double sum)
 {
     m_fSum = sum;
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotChangeDetail(QString dt)
 {
     m_strDetail = dt;
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotChangeCategory()
@@ -452,11 +485,13 @@ void ABTransactionDetail::slotChangeCategory()
         m_strCategory = ui->comboBox->currentText();
         m_bNewCategory = false;
     }
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotChangeFromAccount(QString acFrom)
 {
     m_strFromAccount = acFrom;
+    m_bDataChanged = true;
 }
 
 void ABTransactionDetail::slotChangeToAccount()
@@ -468,4 +503,5 @@ void ABTransactionDetail::slotChangeToAccount()
         m_strToAccount = ui->comboBox_2->currentText();
         m_bNewToAccount = false;
     }
+    m_bDataChanged = true;
 }

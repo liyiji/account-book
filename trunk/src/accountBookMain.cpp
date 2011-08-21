@@ -16,7 +16,10 @@
   2、修改Category
   3、中文路径名
   4、menuBar的Action
-  5、
+  5、table上右键点击的contextMenu
+  6、添加/修改 transaction的时候判断是否在未来时间
+  7、
+  8、
   界面：
   1、TreeWidget的显示及更新
   2、修改Category
@@ -34,6 +37,9 @@
   database的name，自动备份
   添加/删除Category
   ABMainWindow::m_vec都删掉了
+  table上双击可以Edit Transaction
+  tableAccount的顺序总是出问题
+  显示某个时间点时候的所有账户余额
 
   CANCELED :
   tableWidget * 4改为TreeWidget * 4

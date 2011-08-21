@@ -2,7 +2,9 @@
 #include <cassert>
 
 #include <QDir>
+#include <QDateTime>
 #include <QSqlQuery>
+#include <QMessageBox>
 #include <QKeyEvent>
 #include <QTextStream>
 #include <QFileDialog>
@@ -88,8 +90,6 @@ void ABMainWindow::keyPressEvent(QKeyEvent *event)
         if (event->modifiers() & Qt::AltModifier) {
             slotResizeColumnsAndRow();
         }
-    } else if (key == Qt::Key_Q) {
-        ui->tableWidget->setColumnWidth(1, 500);
     }
     else {
         printf("%x\n", event->key());
@@ -140,16 +140,16 @@ void ABMainWindow::initUi()
     ui->buttonDelete->setEnabled(false);
 
     /// 禁止编辑
-    ui->tableWidget->setEditTriggers(QTableWidget::NoEditTriggers);
-    ui->tableWidget_2->setEditTriggers(QTableWidget::NoEditTriggers);
-    ui->tableWidget_3->setEditTriggers(QTableWidget::NoEditTriggers);
-    ui->tableWidget_4->setEditTriggers(QTableWidget::NoEditTriggers);
+    ui->tableAccount->setEditTriggers(QTableWidget::NoEditTriggers);
+    ui->tableIncome->setEditTriggers(QTableWidget::NoEditTriggers);
+    ui->tableExpense->setEditTriggers(QTableWidget::NoEditTriggers);
+    ui->tableLiquidity->setEditTriggers(QTableWidget::NoEditTriggers);
 
     QHeaderView *headerView[4];
-    headerView[0] = ui->tableWidget->horizontalHeader();
-    headerView[1] = ui->tableWidget_2->horizontalHeader();
-    headerView[2] = ui->tableWidget_3->horizontalHeader();
-    headerView[3] = ui->tableWidget_4->horizontalHeader();
+    headerView[0] = ui->tableAccount->horizontalHeader();
+    headerView[1] = ui->tableIncome->horizontalHeader();
+    headerView[2] = ui->tableExpense->horizontalHeader();
+    headerView[3] = ui->tableLiquidity->horizontalHeader();
     for (int i = 0; i < 4; i++) {
         headerView[i]->setMovable(false);
     }
@@ -158,28 +158,28 @@ void ABMainWindow::initUi()
     resizeTableWidgetIncomeExpenseLiquidity();
 
     /// 竖着的表头可见
-    ui->tableWidget->verticalHeader()->setVisible(true);
-    ui->tableWidget_2->verticalHeader()->setVisible(true);
-    ui->tableWidget_3->verticalHeader()->setVisible(true);
-    ui->tableWidget_4->verticalHeader()->setVisible(true);
+    ui->tableAccount->verticalHeader()->setVisible(true);
+    ui->tableIncome->verticalHeader()->setVisible(true);
+    ui->tableExpense->verticalHeader()->setVisible(true);
+    ui->tableLiquidity->verticalHeader()->setVisible(true);
 
     /// 横着的表头点击排序
-    ui->tableWidget->setSortingEnabled(true);
-    ui->tableWidget_2->setSortingEnabled(true);
-    ui->tableWidget_3->setSortingEnabled(true);
-    ui->tableWidget_4->setSortingEnabled(true);
+    ui->tableAccount->setSortingEnabled(true);
+    ui->tableIncome->setSortingEnabled(true);
+    ui->tableExpense->setSortingEnabled(true);
+    ui->tableLiquidity->setSortingEnabled(true);
 
     /// 按行选中
-    ui->tableWidget->setSelectionBehavior(QTableWidget::SelectRows);
-    ui->tableWidget_2->setSelectionBehavior(QTableWidget::SelectRows);
-    ui->tableWidget_3->setSelectionBehavior(QTableWidget::SelectRows);
-    ui->tableWidget_4->setSelectionBehavior(QTableWidget::SelectRows);
+    ui->tableAccount->setSelectionBehavior(QTableWidget::SelectRows);
+    ui->tableIncome->setSelectionBehavior(QTableWidget::SelectRows);
+    ui->tableExpense->setSelectionBehavior(QTableWidget::SelectRows);
+    ui->tableLiquidity->setSelectionBehavior(QTableWidget::SelectRows);
 
     /// 只能单选
-    ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableWidget_2->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableWidget_3->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableWidget_4->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableAccount->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableIncome->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableExpense->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableLiquidity->setSelectionMode(QAbstractItemView::SingleSelection);
 
     initStatisticsTree();
 }
@@ -323,9 +323,9 @@ void ABMainWindow::initConnection()
     connect(ui->menubar, SIGNAL(triggered(QAction*)), this, SLOT(slotMenuAction(QAction*)));
 
     connect(ui->mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(slotChangeEditDeleteButtonEnable()));
-    connect(ui->tableWidget_2, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(slotChangeEditDeleteButtonEnable()));
-    connect(ui->tableWidget_3, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(slotChangeEditDeleteButtonEnable()));
-    connect(ui->tableWidget_4, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(slotChangeEditDeleteButtonEnable()));
+    connect(ui->tableIncome, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(slotChangeEditDeleteButtonEnable()));
+    connect(ui->tableExpense, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(slotChangeEditDeleteButtonEnable()));
+    connect(ui->tableLiquidity, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(slotChangeEditDeleteButtonEnable()));
 
     connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChangeYearOrMonth()));
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChangeYearOrMonth()));
@@ -346,26 +346,38 @@ void ABMainWindow::initConnection()
     connect(ui->buttonShowSmallType, SIGNAL(released()), this, SLOT(slotShowSmallTypeInTree()));
 
     connect(ui->buttonResize, SIGNAL(released()), this, SLOT(slotResizeColumnsAndRow()));
+
+    connect(ui->tableIncome, SIGNAL(itemDoubleClicked(QTableWidgetItem*)),
+            this, SLOT(slotDoubleClickTableTransaction(QTableWidgetItem*)));
+    connect(ui->tableExpense, SIGNAL(itemDoubleClicked(QTableWidgetItem*)),
+            this, SLOT(slotDoubleClickTableTransaction(QTableWidgetItem*)));
+    connect(ui->tableLiquidity, SIGNAL(itemDoubleClicked(QTableWidgetItem*)),
+            this, SLOT(slotDoubleClickTableTransaction(QTableWidgetItem*)));
+
+    connect(ui->buttonBackToCurTime, SIGNAL(released()),
+            this, SLOT(slotReloadCurTimeAccountStatus()));
+    connect(ui->dateTimeEdit, SIGNAL(dateTimeChanged(QDateTime)),
+            this, SLOT(slotReloadAccountStatusByDataTime(QDateTime)));
 }
 
 void ABMainWindow::loadData(int iYear, QString strMonth)
 {
     /// TODO : 这里到底是否应该注释掉........
     /// 横着的表头点击排序
-    ui->tableWidget->setSortingEnabled(false);
-    ui->tableWidget_2->setSortingEnabled(false);
-    ui->tableWidget_3->setSortingEnabled(false);
-    ui->tableWidget_4->setSortingEnabled(false);
+//    ui->tableAccount->setSortingEnabled(false);
+    ui->tableIncome->setSortingEnabled(false);
+    ui->tableExpense->setSortingEnabled(false);
+    ui->tableLiquidity->setSortingEnabled(false);
 
     showTransactionData(iYear, strMonth);
     showCategoryData(iYear, strMonth);
-    showAccountData();
+    slotReloadCurTimeAccountStatus();
 
     /// 横着的表头点击排序
-    ui->tableWidget->setSortingEnabled(true);
-    ui->tableWidget_2->setSortingEnabled(true);
-    ui->tableWidget_3->setSortingEnabled(true);
-    ui->tableWidget_4->setSortingEnabled(true);
+//    ui->tableAccount->setSortingEnabled(true);
+    ui->tableIncome->setSortingEnabled(true);
+    ui->tableExpense->setSortingEnabled(true);
+    ui->tableLiquidity->setSortingEnabled(true);
 
     slotResizeColumnsAndRow();
 }
@@ -380,9 +392,9 @@ void ABMainWindow::showTransactionData(int iYear, QString strMonth)
         }
     }
 
-    ui->tableWidget_2->setRowCount(0);
-    ui->tableWidget_3->setRowCount(0);
-    ui->tableWidget_4->setRowCount(0);
+    ui->tableIncome->setRowCount(0);
+    ui->tableExpense->setRowCount(0);
+    ui->tableLiquidity->setRowCount(0);
 
     resetTableWidgetsSettings(false, true, true, true);
 
@@ -425,12 +437,12 @@ void ABMainWindow::showTransactionData(int iYear, QString strMonth)
         if (curItem.Type == g_Income) {
             wholeIncome += curItem.Sum;
 
-            ui->tableWidget_2->insertRow(0);
+            ui->tableIncome->insertRow(0);
             int ithRow = 0;
             int ithColume = 0;
 
             QTableWidgetItem* pItem0 = new QTableWidgetItem(YMDHM2yyyymmddhhmm(curItem.Year, curItem.Month, curItem.Day, curItem.Hour, curItem.Minute));
-            ui->tableWidget_2->setItem(ithRow, ithColume, pItem0);
+            ui->tableIncome->setItem(ithRow, ithColume, pItem0);
             ithColume++;
 
             QString jointCategory;
@@ -438,29 +450,29 @@ void ABMainWindow::showTransactionData(int iYear, QString strMonth)
             jointCategory.append(CategorySeparator);
             jointCategory.append(curItem.CategorySmall);
             QTableWidgetItem* pItem1 = new QTableWidgetItem(jointCategory);
-            ui->tableWidget_2->setItem(ithRow, ithColume, pItem1);
+            ui->tableIncome->setItem(ithRow, ithColume, pItem1);
             ithColume++;
 
             QTableWidgetItem* pItem2 = new QTableWidgetItem(getMoneyFormNumber(curItem.Sum));
             pItem2->setTextAlignment(0x82);
-            ui->tableWidget_2->setItem(ithRow, ithColume, pItem2);
+            ui->tableIncome->setItem(ithRow, ithColume, pItem2);
             ithColume++;
 
             QTableWidgetItem* pItem3 = new QTableWidgetItem(curItem.ToAccount);
-            ui->tableWidget_2->setItem(ithRow, ithColume, pItem3);
+            ui->tableIncome->setItem(ithRow, ithColume, pItem3);
             ithColume++;
 
             QTableWidgetItem* pItem4 = new QTableWidgetItem(curItem.Detail);
-            ui->tableWidget_2->setItem(ithRow, ithColume, pItem4);
+            ui->tableIncome->setItem(ithRow, ithColume, pItem4);
         } else if (curItem.Type == g_Expense) {
             wholeExpense += curItem.Sum;
 
-            ui->tableWidget_3->insertRow(0);
+            ui->tableExpense->insertRow(0);
             int ithRow = 0;
             int ithColume = 0;
 
             QTableWidgetItem* pItem0 = new QTableWidgetItem(YMDHM2yyyymmddhhmm(curItem.Year, curItem.Month, curItem.Day, curItem.Hour, curItem.Minute));
-            ui->tableWidget_3->setItem(ithRow, ithColume, pItem0);
+            ui->tableExpense->setItem(ithRow, ithColume, pItem0);
             ithColume++;
 
             QString jointCategory;
@@ -468,44 +480,44 @@ void ABMainWindow::showTransactionData(int iYear, QString strMonth)
             jointCategory.append(CategorySeparator);
             jointCategory.append(curItem.CategorySmall);
             QTableWidgetItem* pItem1 = new QTableWidgetItem(jointCategory);
-            ui->tableWidget_3->setItem(ithRow, ithColume, pItem1);
+            ui->tableExpense->setItem(ithRow, ithColume, pItem1);
             ithColume++;
 
             QTableWidgetItem* pItem2 = new QTableWidgetItem(getMoneyFormNumber(curItem.Sum));
             pItem2->setTextAlignment(0x82);
-            ui->tableWidget_3->setItem(ithRow, ithColume, pItem2);
+            ui->tableExpense->setItem(ithRow, ithColume, pItem2);
             ithColume++;
 
             QTableWidgetItem* pItem3 = new QTableWidgetItem(curItem.FromAccount);
-            ui->tableWidget_3->setItem(ithRow, ithColume, pItem3);
+            ui->tableExpense->setItem(ithRow, ithColume, pItem3);
             ithColume++;
 
             QTableWidgetItem* pItem4 = new QTableWidgetItem(curItem.Detail);
-            ui->tableWidget_3->setItem(ithRow, ithColume, pItem4);
+            ui->tableExpense->setItem(ithRow, ithColume, pItem4);
         } else if (curItem.Type == g_Liquidity) {
-            ui->tableWidget_4->insertRow(0);
+            ui->tableLiquidity->insertRow(0);
             int ithRow = 0;
             int ithColume = 0;
 
             QTableWidgetItem* pItem0 = new QTableWidgetItem(YMDHM2yyyymmddhhmm(curItem.Year, curItem.Month, curItem.Day, curItem.Hour, curItem.Minute));
-            ui->tableWidget_4->setItem(ithRow, ithColume, pItem0);
+            ui->tableLiquidity->setItem(ithRow, ithColume, pItem0);
             ithColume++;
 
             QTableWidgetItem* pItem1 = new QTableWidgetItem(curItem.FromAccount);
-            ui->tableWidget_4->setItem(ithRow, ithColume, pItem1);
+            ui->tableLiquidity->setItem(ithRow, ithColume, pItem1);
             ithColume++;
 
             QTableWidgetItem* pItem2 = new QTableWidgetItem(getMoneyFormNumber(curItem.Sum));
             pItem2->setTextAlignment(0x82);
-            ui->tableWidget_4->setItem(ithRow, ithColume, pItem2);
+            ui->tableLiquidity->setItem(ithRow, ithColume, pItem2);
             ithColume++;
 
             QTableWidgetItem* pItem3 = new QTableWidgetItem(curItem.ToAccount);
-            ui->tableWidget_4->setItem(ithRow, ithColume, pItem3);
+            ui->tableLiquidity->setItem(ithRow, ithColume, pItem3);
             ithColume++;
 
             QTableWidgetItem* pItem4 = new QTableWidgetItem(curItem.Detail);
-            ui->tableWidget_4->setItem(ithRow, ithColume, pItem4);
+            ui->tableLiquidity->setItem(ithRow, ithColume, pItem4);
         } else {
             assert(0);
         }
@@ -523,48 +535,6 @@ void ABMainWindow::showTransactionData(int iYear, QString strMonth)
     ui->label_9->setText(getMoneyFormNumber(wholeIncome));
     ui->label_11->setText(getMoneyFormNumber(wholeExpense));
     ui->label_13->setText(getMoneyFormNumber(wholeSurplus));
-}
-
-void ABMainWindow::showAccountData()
-{
-    ui->tableWidget->setRowCount(0);
-
-    resetTableWidgetsSettings(true, false, false, false);
-
-    QSqlQuery q1;
-    QString s1;
-    s1.append("SELECT Name, Surplus FROM ");
-    s1.append(TableNameAccount);
-    s1.append(" ORDER BY Name DESC");
-    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
-
-    float wholeSurplus = 0.0;
-    while (q1.next()) {
-        QString strName = q1.value(0).toString();
-        float fSurplus = q1.value(1).toDouble();
-        wholeSurplus += fSurplus;
-
-        ui->tableWidget->insertRow(0);
-        int ithRow = 0;
-        int ithColume = 0;
-
-        QTableWidgetItem* pItem0 = new QTableWidgetItem(strName);
-        ui->tableWidget->setItem(ithRow, ithColume, pItem0);
-        ithColume++;
-
-        QTableWidgetItem* pItem1 = new QTableWidgetItem(getMoneyFormNumber(fSurplus));
-        pItem1->setTextAlignment(0x82);
-        ui->tableWidget->setItem(ithRow, ithColume, pItem1);
-
-        if (strName == g_Cash || strName.contains("Wage")) {
-            pItem0->setTextColor(Qt::red);
-            pItem1->setTextColor(Qt::red);
-        }
-    }
-
-    resizeTableWidgetAccount();
-
-    ui->labelAllMySurplus->setText(getMoneyFormNumber(wholeSurplus));
 }
 
 void ABMainWindow::showCategoryData(int iYear, QString strMonth)
@@ -622,50 +592,89 @@ void ABMainWindow::showCategoryData(int iYear, QString strMonth)
     }
 }
 
-void ABMainWindow::resetTableWidgetsSettings(bool bTableWidget,
-                                             bool bTableWidget_2,
-                                             bool bTableWidget_3,
-                                             bool bTableWidget_4)
+void ABMainWindow::showAccountData(QDateTime dt)
+{
+    ui->tableAccount->setRowCount(0);
+    resetTableWidgetsSettings(true, false, false, false);
+
+    float wholeSurplus = 0.0;
+
+    QStringList sl = getAllAccountSurplusByDateTime(dt);
+    for (int i = 0; i < sl.count(); i++) {
+        QString str = sl.at(i);
+        QStringList slSplit = str.split(CategorySeparator);
+        QString strName = slSplit.at(0);
+        float fSurplus = slSplit.at(1).toDouble();
+
+        wholeSurplus += fSurplus;
+
+        ui->tableAccount->insertRow(0);
+        int ithRow = 0;
+        int ithColume = 0;
+
+        QTableWidgetItem* pItem0 = new QTableWidgetItem(strName);
+        ui->tableAccount->setItem(ithRow, ithColume, pItem0);
+        ithColume++;
+
+        QTableWidgetItem* pItem1 = new QTableWidgetItem(getMoneyFormNumber(fSurplus));
+        pItem1->setTextAlignment(0x82);
+        ui->tableAccount->setItem(ithRow, ithColume, pItem1);
+
+        if (strName == g_Cash || strName.contains("Wage")) {
+            pItem0->setTextColor(Qt::red);
+            pItem1->setTextColor(Qt::red);
+        }
+    }
+
+    resizeTableWidgetAccount();
+
+    ui->labelAllMySurplus->setText(getMoneyFormNumber(wholeSurplus));
+}
+
+void ABMainWindow::resetTableWidgetsSettings(bool bTableAccount,
+                                             bool btableIncome,
+                                             bool btableExpense,
+                                             bool btableLiquidity)
 {
     /// 设置表头内容
     /// TODO : 为什么需要重新设置一遍........
 
-    if (bTableWidget) {
+    if (bTableAccount) {
         QStringList sl;
         sl.append("Account");
         sl.append("Surplus");
-        ui->tableWidget->setColumnCount(sl.count());
-        ui->tableWidget->setHorizontalHeaderLabels(sl);
+        ui->tableAccount->setColumnCount(sl.count());
+        ui->tableAccount->setHorizontalHeaderLabels(sl);
     }
-    if (bTableWidget_2) {
+    if (btableIncome) {
         QStringList sl;
         sl.append("Date and Time");
         sl.append("Category");
         sl.append("Sum");
         sl.append("Account");
         sl.append("Detail");
-        ui->tableWidget_2->setColumnCount(sl.count());
-        ui->tableWidget_2->setHorizontalHeaderLabels(sl);
+        ui->tableIncome->setColumnCount(sl.count());
+        ui->tableIncome->setHorizontalHeaderLabels(sl);
     }
-    if (bTableWidget_3) {
+    if (btableExpense) {
         QStringList sl;
         sl.append("Date and Time");
         sl.append("Category");
         sl.append("Sum");
         sl.append("Account");
         sl.append("Detail");
-        ui->tableWidget_3->setColumnCount(sl.count());
-        ui->tableWidget_3->setHorizontalHeaderLabels(sl);
+        ui->tableExpense->setColumnCount(sl.count());
+        ui->tableExpense->setHorizontalHeaderLabels(sl);
     }
-    if (bTableWidget_4) {
+    if (btableLiquidity) {
         QStringList sl;
         sl.append("Date and Time");
         sl.append("From");
         sl.append("Sum");
         sl.append("To");
         sl.append("Detail");
-        ui->tableWidget_4->setColumnCount(sl.count());
-        ui->tableWidget_4->setHorizontalHeaderLabels(sl);
+        ui->tableLiquidity->setColumnCount(sl.count());
+        ui->tableLiquidity->setHorizontalHeaderLabels(sl);
     }
 }
 
@@ -703,20 +712,20 @@ QTreeWidgetItem* ABMainWindow::searchItemInStatisticsTree(QString bigType, QStri
 
 void ABMainWindow::resizeTableWidgetAccount()
 {
-    ui->tableWidget->resizeColumnsToContents();
-    ui->tableWidget->resizeRowsToContents();
+    ui->tableAccount->resizeColumnsToContents();
+    ui->tableAccount->resizeRowsToContents();
 }
 
 void ABMainWindow::resizeTableWidgetIncomeExpenseLiquidity()
 {
-    ui->tableWidget_2->resizeColumnsToContents();
-    ui->tableWidget_2->resizeRowsToContents();
+    ui->tableIncome->resizeColumnsToContents();
+    ui->tableIncome->resizeRowsToContents();
 
-    ui->tableWidget_3->resizeColumnsToContents();
-    ui->tableWidget_3->resizeRowsToContents();
+    ui->tableExpense->resizeColumnsToContents();
+    ui->tableExpense->resizeRowsToContents();
 
-    ui->tableWidget_4->resizeColumnsToContents();
-    ui->tableWidget_4->resizeRowsToContents();
+    ui->tableLiquidity->resizeColumnsToContents();
+    ui->tableLiquidity->resizeRowsToContents();
 }
 
 void ABMainWindow::resizeTreeStatistics()
@@ -837,7 +846,7 @@ void ABMainWindow::slotChangeEditDeleteButtonEnable()
         ui->buttonEdit->setEnabled(false);
         ui->buttonDelete->setEnabled(false);
     } else if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Income)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_2->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableIncome->selectedItems();
         if (list.count()) {
             ui->buttonEdit->setEnabled(true);
             ui->buttonDelete->setEnabled(true);
@@ -846,7 +855,7 @@ void ABMainWindow::slotChangeEditDeleteButtonEnable()
             ui->buttonDelete->setEnabled(false);
         }
     } else if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Expense)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_3->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableExpense->selectedItems();
         if (list.count()) {
             ui->buttonEdit->setEnabled(true);
             ui->buttonDelete->setEnabled(true);
@@ -855,7 +864,7 @@ void ABMainWindow::slotChangeEditDeleteButtonEnable()
             ui->buttonDelete->setEnabled(false);
         }
     } else if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Liquidity)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_4->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableLiquidity->selectedItems();
         if (list.count()) {
             ui->buttonEdit->setEnabled(true);
             ui->buttonDelete->setEnabled(true);
@@ -1037,8 +1046,10 @@ void ABMainWindow::slotAddNewLiquidity()
 
 void ABMainWindow::slotEditCurrentTransactionItem()
 {
+    bool bDataChanged = false;
+
     if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Income)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_2->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableIncome->selectedItems();
         if (list.count() <= 0) {
             return;
         }
@@ -1063,36 +1074,39 @@ void ABMainWindow::slotEditCurrentTransactionItem()
         dlg.setInitData(dt, tm, ctg, "", toAccount, sum, detail);
         if (dlg.exec() == QDialog::Accepted) {
             /// 数据库中删掉原来的Item，添加新的Item，对Account/Category/Transaction三个Table进行更新
-            deleteItemInTransaction(ctg.bigType,
-                                    ctg.midType,
-                                    ctg.smallType,
-                                    year,
-                                    month,
-                                    day,
-                                    hour,
-                                    minute,
-                                    sum,
-                                    g_Income,
-                                    toAccount,
-                                    detail);
+            if (dlg.isDataChanged()) {
+                bDataChanged = true;
+                deleteItemInTransaction(ctg.bigType,
+                                        ctg.midType,
+                                        ctg.smallType,
+                                        year,
+                                        month,
+                                        day,
+                                        hour,
+                                        minute,
+                                        sum,
+                                        g_Income,
+                                        toAccount,
+                                        detail);
 
-            QStringList sl = dlg.m_strCategory.split(CategorySeparator);
-            insertItemInTransaction(dlg.getTypeStr(),
-                                    sl.at(0),
-                                    sl.at(1),
-                                    dlg.m_iYear,
-                                    dlg.m_iMonth,
-                                    dlg.m_iDay,
-                                    dlg.m_iHour,
-                                    dlg.m_iMinute,
-                                    dlg.m_fSum,
-                                    dlg.m_strFromAccount,
-                                    dlg.m_strToAccount,
-                                    dlg.m_strDetail,
-                                    getInsertTime());
+                QStringList sl = dlg.m_strCategory.split(CategorySeparator);
+                insertItemInTransaction(dlg.getTypeStr(),
+                                        sl.at(0),
+                                        sl.at(1),
+                                        dlg.m_iYear,
+                                        dlg.m_iMonth,
+                                        dlg.m_iDay,
+                                        dlg.m_iHour,
+                                        dlg.m_iMinute,
+                                        dlg.m_fSum,
+                                        dlg.m_strFromAccount,
+                                        dlg.m_strToAccount,
+                                        dlg.m_strDetail,
+                                        getInsertTime());
+            }
         }
     } else if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Expense)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_3->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableExpense->selectedItems();
         if (list.count() <= 0) {
             return;
         }
@@ -1117,36 +1131,39 @@ void ABMainWindow::slotEditCurrentTransactionItem()
         dlg.setInitData(dt, tm, ctg, fromAccount, "", sum, detail);
         if (dlg.exec() == QDialog::Accepted) {
             /// 数据库中删掉原来的Item，添加新的Item，对Account/Category/Transaction三个Table进行更新
-            deleteItemInTransaction(ctg.bigType,
-                                    ctg.midType,
-                                    ctg.smallType,
-                                    year,
-                                    month,
-                                    day,
-                                    hour,
-                                    minute,
-                                    sum,
-                                    fromAccount,
-                                    g_Expense,
-                                    detail);
+            if (dlg.isDataChanged()) {
+                bDataChanged = true;
+                deleteItemInTransaction(ctg.bigType,
+                                        ctg.midType,
+                                        ctg.smallType,
+                                        year,
+                                        month,
+                                        day,
+                                        hour,
+                                        minute,
+                                        sum,
+                                        fromAccount,
+                                        g_Expense,
+                                        detail);
 
-            QStringList sl = dlg.m_strCategory.split(CategorySeparator);
-            insertItemInTransaction(dlg.getTypeStr(),
-                                    sl.at(0),
-                                    sl.at(1),
-                                    dlg.m_iYear,
-                                    dlg.m_iMonth,
-                                    dlg.m_iDay,
-                                    dlg.m_iHour,
-                                    dlg.m_iMinute,
-                                    dlg.m_fSum,
-                                    dlg.m_strFromAccount,
-                                    dlg.m_strToAccount,
-                                    dlg.m_strDetail,
-                                    getInsertTime());
+                QStringList sl = dlg.m_strCategory.split(CategorySeparator);
+                insertItemInTransaction(dlg.getTypeStr(),
+                                        sl.at(0),
+                                        sl.at(1),
+                                        dlg.m_iYear,
+                                        dlg.m_iMonth,
+                                        dlg.m_iDay,
+                                        dlg.m_iHour,
+                                        dlg.m_iMinute,
+                                        dlg.m_fSum,
+                                        dlg.m_strFromAccount,
+                                        dlg.m_strToAccount,
+                                        dlg.m_strDetail,
+                                        getInsertTime());
+            }
         }
     } else if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Liquidity)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_4->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableLiquidity->selectedItems();
         if (list.count() <= 0) {
             return;
         }
@@ -1171,45 +1188,50 @@ void ABMainWindow::slotEditCurrentTransactionItem()
         dlg.setInitData(dt, tm, ctg, fromAccount, toAccount, sum, detail);
         if (dlg.exec() == QDialog::Accepted) {
             /// 数据库中删掉原来的Item，添加新的Item，对Account/Category/Transaction三个Table进行更新
-            deleteItemInTransaction(ctg.bigType,
-                                    ctg.midType,
-                                    ctg.smallType,
-                                    year,
-                                    month,
-                                    day,
-                                    hour,
-                                    minute,
-                                    sum,
-                                    fromAccount,
-                                    toAccount,
-                                    detail);
+            if (dlg.isDataChanged()) {
+                bDataChanged = true;
+                deleteItemInTransaction(ctg.bigType,
+                                        ctg.midType,
+                                        ctg.smallType,
+                                        year,
+                                        month,
+                                        day,
+                                        hour,
+                                        minute,
+                                        sum,
+                                        fromAccount,
+                                        toAccount,
+                                        detail);
 
-            QStringList sl = dlg.m_strCategory.split(CategorySeparator);
-            insertItemInTransaction(dlg.getTypeStr(),
-                                    sl.at(0),
-                                    sl.at(1),
-                                    dlg.m_iYear,
-                                    dlg.m_iMonth,
-                                    dlg.m_iDay,
-                                    dlg.m_iHour,
-                                    dlg.m_iMinute,
-                                    dlg.m_fSum,
-                                    dlg.m_strFromAccount,
-                                    dlg.m_strToAccount,
-                                    dlg.m_strDetail,
-                                    getInsertTime());
+                QStringList sl = dlg.m_strCategory.split(CategorySeparator);
+                insertItemInTransaction(dlg.getTypeStr(),
+                                        sl.at(0),
+                                        sl.at(1),
+                                        dlg.m_iYear,
+                                        dlg.m_iMonth,
+                                        dlg.m_iDay,
+                                        dlg.m_iHour,
+                                        dlg.m_iMinute,
+                                        dlg.m_fSum,
+                                        dlg.m_strFromAccount,
+                                        dlg.m_strToAccount,
+                                        dlg.m_strDetail,
+                                        getInsertTime());
+            }
         }
     } else {
         assert(0);
     }
 
-    loadData(ui->comboBox->currentText().toInt(), ui->comboBox_2->currentText());
+    if (bDataChanged) {
+        loadData(ui->comboBox->currentText().toInt(), ui->comboBox_2->currentText());
+    }
 }
 
 void ABMainWindow::slotDeleteCurrentTransactionItem()
 {
     if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Income)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_2->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableIncome->selectedItems();
         if (list.count() <= 0) {
             return;
         }
@@ -1246,7 +1268,7 @@ void ABMainWindow::slotDeleteCurrentTransactionItem()
                                 detail);
 
     } else if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Expense)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_3->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableExpense->selectedItems();
         if (list.count() <= 0) {
             return;
         }
@@ -1283,7 +1305,7 @@ void ABMainWindow::slotDeleteCurrentTransactionItem()
                                 detail);
 
     } else if (ui->mainTabWidget->currentWidget()->objectName().contains(g_Liquidity)) {
-        QList<QTableWidgetItem*> list = ui->tableWidget_4->selectedItems();
+        QList<QTableWidgetItem*> list = ui->tableLiquidity->selectedItems();
         if (list.count() <= 0) {
             return;
         }
@@ -1388,4 +1410,19 @@ void ABMainWindow::slotShowSmallTypeInTree()
     }
 
     resizeTreeStatistics();
+}
+
+void ABMainWindow::slotDoubleClickTableTransaction(QTableWidgetItem*)
+{
+    slotEditCurrentTransactionItem();
+}
+
+void ABMainWindow::slotReloadCurTimeAccountStatus()
+{
+    ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+}
+
+void ABMainWindow::slotReloadAccountStatusByDataTime(QDateTime dt)
+{
+    showAccountData(dt);
 }

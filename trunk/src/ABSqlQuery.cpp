@@ -1,7 +1,7 @@
 
 #include <cassert>
 
-#include <QDebug>
+#include <QMap>
 #include <QVariant>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -454,9 +454,9 @@ void deleteItemInTransaction(QString Type,
 void renameAccount(QString oriName, QString newName)
 {
     if (oriName == g_Cash ||
-            oriName.isEmpty() ||
-            newName.isEmpty() ||
-            oriName == newName) {
+        oriName.isEmpty() ||
+        newName.isEmpty() ||
+        oriName == newName) {
         warnMsgParameterInvalid();
         return;
     }
@@ -749,15 +749,15 @@ QVector<ABCategory> categoryList(QString bigType)
     QSqlQuery queryIncome, queryExpense;
     QString strQueryIncome, strQueryExpense;
     strQueryIncome = QString("SELECT * FROM ")
-            + TableNameCategory
-            + QString(" WHERE BigType = '")
-            + g_Income
-            + QString("' ORDER BY MidType, SmallType");
+                     + TableNameCategory
+                     + QString(" WHERE BigType = '")
+                     + g_Income
+                     + QString("' ORDER BY MidType, SmallType");
     strQueryExpense = QString("SELECT * FROM ")
-            + TableNameCategory
-            + QString(" WHERE BigType = '")
-            + g_Expense
-            + QString("' ORDER BY MidType, SmallType");
+                      + TableNameCategory
+                      + QString(" WHERE BigType = '")
+                      + g_Expense
+                      + QString("' ORDER BY MidType, SmallType");
     if (bigType.isEmpty() || bigType == g_Income) {
         if (!queryIncome.exec(strQueryIncome)) warnMsgDatabaseOperationFailed();
         while (queryIncome.next()) {
@@ -793,10 +793,10 @@ QStringList midTypeList(QString bigType)
     QSqlQuery q1;
     QString s1;
     s1 = QString("SELECT DISTINCT MidType FROM ")
-            + TableNameCategory
-            + QString(" WHERE BigType = '")
-            + bigType
-            + QString("' ORDER BY MidType");
+         + TableNameCategory
+         + QString(" WHERE BigType = '")
+         + bigType
+         + QString("' ORDER BY MidType");
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
     while (q1.next()) {
         sl.append(q1.value(0).toString());
@@ -816,12 +816,12 @@ QStringList smallTypeList(QString bigType, QString midType)
     QSqlQuery q1;
     QString s1;
     s1 = QString("SELECT DISTINCT SmallType FROM ")
-            + TableNameCategory
-            + QString(" WHERE BigType = '")
-            + bigType
-            + QString("' AND MidType = '")
-            + midType
-            + QString("' ORDER BY SmallType");
+         + TableNameCategory
+         + QString(" WHERE BigType = '")
+         + bigType
+         + QString("' AND MidType = '")
+         + midType
+         + QString("' ORDER BY SmallType");
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
     while (q1.next()) {
         sl.append(q1.value(0).toString());
@@ -1067,6 +1067,113 @@ bool categoryExists(QString bigType, QString midType, QString smallType)
             }
         }
     }
+}
+
+QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC)
+{
+    QStringList sl;
+
+    /// 判断dt是否比所有Transaction最新的时间还往后，如果是的话，直接取Surplus，否则要计算
+    bool b = isDtLaterThanLatestTransaction(dt);
+
+    QMap<QString, float> map;
+    QStringList slAccountName = accountList();
+    for (int i = 0; i < slAccountName.count(); i++) {
+        map.insert(slAccountName.at(i), 0.0);
+    }
+
+    if (b) {
+        QSqlQuery q1;
+        QString s1;
+        s1.append("SELECT Name, Surplus FROM ");
+        s1.append(TableNameAccount);
+        if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+        while (q1.next()) {
+            QString strName;
+            float fSurplus;
+            strName = q1.value(0).toString();
+            fSurplus = q1.value(1).toDouble();
+            map[strName] = fSurplus;
+        }
+    } else {
+        QSqlQuery q1;
+        QString s1;
+        s1.append("SELECT Year, Month, Day, Hour, Minute, FromAccount, ToAccount, Sum FROM ");
+        s1.append(TableNameTransaction);
+        s1.append(" ORDER BY Year, Month, Day, Hour, Minute");
+        if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+        while (q1.next()) {
+            int year = q1.value(0).toInt();
+            int month = q1.value(1).toInt();
+            int day = q1.value(2).toInt();
+            int hour = q1.value(3).toInt();
+            int minute = q1.value(4).toInt();
+            QString fromAccount = q1.value(5).toString();
+            QString toAccount = q1.value(6).toString();
+            float sum = q1.value(7).toDouble();
+
+            QDateTime dtTran(QDate(year, month, day),
+                             QTime(hour, minute));
+            if (dtTran > dt) {
+                continue;
+            }
+
+            if (fromAccount != g_Income) {
+                map[fromAccount] = map[fromAccount] - sum;
+            }
+            if (toAccount != g_Expense) {
+                map[toAccount] = map[toAccount] + sum;
+            }
+        }
+    }
+
+    if (bDESC) {
+        QMap<QString, float>::const_iterator it = map.constEnd();
+        while (it != map.constBegin()) {
+            --it;
+            sl.append(it.key() + CategorySeparator + QString::number(it.value()));
+        }
+    } else {
+        QMap<QString, float>::const_iterator it = map.constBegin();
+        while (it != map.constEnd()) {
+            sl.append(it.key() + CategorySeparator + QString::number(it.value()));
+            ++it;
+        }
+    }
+
+    return sl;
+}
+
+bool isDtLaterThanLatestTransaction(QDateTime dt)
+{
+    bool bLater = false;
+    bool bFoundTransaction = false;
+
+    QSqlQuery q1;
+    QString s1;
+    s1.append("SELECT Year, Month, Day, Hour, Minute FROM ");
+    s1.append(TableNameTransaction);
+    s1.append(" ORDER BY Year DESC, Month DESC, Day DESC, Hour DESC, Minute DESC");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+    while (q1.next()) {
+        bFoundTransaction = true;
+        int year = q1.value(0).toInt();
+        int month = q1.value(1).toInt();
+        int day = q1.value(2).toInt();
+        int hour = q1.value(3).toInt();
+        int minute = q1.value(4).toInt();
+
+        QDateTime dtMax = QDateTime(QDate(year, month, day), QTime(hour, minute));
+        if (dt >= dtMax) {
+            bLater = true;
+        }
+        break;
+    }
+
+    if (!bFoundTransaction) {
+        bLater = true;
+    }
+    return bLater;
 }
 
 void singleInsertItemInAccount(QString Name,

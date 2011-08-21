@@ -2,6 +2,7 @@
 #define ABSQLQUERY_H
 
 #include <QString>
+#include <QDateTime>
 #include <QSqlDatabase>
 
 #include <ABDefines.h>
@@ -125,6 +126,15 @@ bool accountExists(QString accountName);
 
 /// 判断Category是否存在
 bool categoryExists(QString bigType, QString midType, QString smallType = "");
+
+/// 根据日期时间dt，得到，到dt为止，所有的account的surplus
+/// 在当前时间点发生的交易，按照已经发生结束计算
+/// QStringList的每一个条目的格式是"accountName -> surplus"
+/// bDESC为True时候，输出的QStringList是倒序的
+QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC = true);
+
+/// 判断dt是否比最新的Transaction的发生时间还新
+bool isDtLaterThanLatestTransaction(QDateTime dt);
 
 /// 单纯的往三个Table里边insert item，不进行任何判断
 /// 请勿在其他地方调用这三个函数，ABSqlQuery.h的其他函数中进行调用
