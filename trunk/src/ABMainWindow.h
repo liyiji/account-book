@@ -41,6 +41,7 @@ private:
     void backupDatabaseFile(bool bManual);
 
     void exportTransactionsAsTextFile(bool bNotice);
+    void setNewPassword();
 
 private slots:
     void slotMenuAction(QAction *);

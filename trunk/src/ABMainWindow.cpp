@@ -15,7 +15,7 @@
 #include "ABDefines.h"
 #include "ABFunction.h"
 #include "ABSqlQuery.h"
-//#include "ABInputPassword.h"
+#include "ABInputPassword.h"
 #include "ABManageAccount.h"
 #include "ABManageCategory.h"
 #include "ABTransactionDetail.h"
@@ -26,30 +26,20 @@ ABMainWindow::ABMainWindow(QString strDatabaseFileName, QWidget *parent) : QMain
     ui->setupUi(this);
 
     m_strDatabaseName = strDatabaseFileName;
+    createConnection(m_strDatabaseName);
 
-    if (!createConnection(m_strDatabaseName)) {
-//        while (1) {
-//            ABInputPassword dlg(false);
-//            if (dlg.exec() == QDialog::Accepted) {
-//                if (!createConnection(m_strDatabaseName, dlg.getPwd())) {
-
-//                } else {
-//                    break;
-//                }
-//            } else {
-//                qApp->quit();
-//                /// TODO :
-//            }
-//        }
+    extern bool g_UsePassword;
+    if (g_UsePassword) {
+        ABInputPassword dlg(1);
+        if (dlg.exec() != QDialog::Accepted) {
+            assert(0);
+        }
     }
 
     initUi();
     initConnection();
     slotLoadDataOfCurMonth(); /// 从数据库中读取
     slotResizeColumnsAndRow(); /// TODO : 是否应该留下
-
-    /// TODO :
-    ui->buttonResize->setVisible(false);
 
     resize(1, 1);
 }
@@ -83,7 +73,6 @@ void ABMainWindow::closeEvent(QCloseEvent *event)
 
 void ABMainWindow::keyPressEvent(QKeyEvent *event)
 {
-    /// TODO :
     int key = event->key();
 
     if (key == Qt::Key_R) {
@@ -92,10 +81,8 @@ void ABMainWindow::keyPressEvent(QKeyEvent *event)
         }
     }
     else {
-        printf("%x\n", event->key());
+        /// TODO : 可以添加一些其他的键盘快捷方式
     }
-    fflush(0);
-    fflush(0);
 }
 
 void ABMainWindow::initUi()
@@ -108,7 +95,7 @@ void ABMainWindow::initUi()
 //    ui->actionExport_Data_As_Text_File->setEnabled(false);
     ui->actionImport_another_data_file->setEnabled(false);
     ui->actionOptions->setEnabled(false);
-    ui->actionSet_Password->setEnabled(false);
+//    ui->actionSet_Password->setEnabled(false);
 #endif
 
     int index = -1;
@@ -751,7 +738,6 @@ void ABMainWindow::backupDatabaseFile(bool bManual)
         dir.mkdir(g_WorkDir + g_BackupDir);
     }
 
-    /// 删除多余的备份文件
     QStringList sl = backupDir.entryList();
     for (int i = 0; i < sl.count();) {
         QString fileName = sl.at(i);
@@ -759,6 +745,7 @@ void ABMainWindow::backupDatabaseFile(bool bManual)
             i++;
         } else {
             if (fileName.endsWith(".db")) {
+                /// 删除.db结尾但是文件名不符合备份文件规范的文件
                 QString strFileName = g_WorkDir + g_BackupDir + sl.at(i);
                 QFile::remove(strFileName);
             }
@@ -768,6 +755,7 @@ void ABMainWindow::backupDatabaseFile(bool bManual)
 
     if (sl.count() >= 5) {
         for (int i = 0; i < sl.count() - 4; i++) {
+            /// 删除多余的备份文件
             QString strOldestName = g_WorkDir + g_BackupDir + sl.at(i);
             QFile::remove(strOldestName);
         }
@@ -824,6 +812,12 @@ void ABMainWindow::exportTransactionsAsTextFile(bool bNotice)
     }
 }
 
+void ABMainWindow::setNewPassword()
+{
+    ABInputPassword dlg(0);
+    dlg.exec();
+}
+
 void ABMainWindow::slotMenuAction(QAction *action)
 {
     if (action == ui->actionExit) {
@@ -837,6 +831,8 @@ void ABMainWindow::slotMenuAction(QAction *action)
         backupDatabaseFile(true);
     } else if (action == ui->actionExport_Data_As_Text_File) {
         exportTransactionsAsTextFile(true);
+    } else if (action == ui->actionSet_Password) {
+        setNewPassword();
     }
 }
 
