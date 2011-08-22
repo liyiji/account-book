@@ -34,9 +34,9 @@ HEADERS +=  ./src/ABMainWindow.h
 SOURCES +=  ./src/ABMainWindow.cpp
 FORMS   +=  ./src/ABMainWindow.ui
 
-#HEADERS +=  ./src/ABInputPassword.h
-#SOURCES +=  ./src/ABInputPassword.cpp
-#FORMS   +=  ./src/ABInputPassword.ui
+HEADERS +=  ./src/ABInputPassword.h
+SOURCES +=  ./src/ABInputPassword.cpp
+FORMS   +=  ./src/ABInputPassword.ui
 
 HEADERS +=  ./src/ABTransactionDetail.h
 SOURCES +=  ./src/ABTransactionDetail.cpp
