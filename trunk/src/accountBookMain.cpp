@@ -17,7 +17,7 @@
   3、中文路径名
   4、menuBar的Action
   5、table上右键点击的contextMenu
-  6、添加/修改 transaction的时候判断是否在未来时间
+  6、密码的加密解密
   7、
   8、
   界面：
@@ -40,12 +40,14 @@
   table上双击可以Edit Transaction
   tableAccount的顺序总是出问题
   显示某个时间点时候的所有账户余额
+  添加/修改 transaction的时候判断是否在未来时间
 
   CANCELED :
   tableWidget * 4改为TreeWidget * 4
   */
 
 QString g_WorkDir;
+bool g_UsePassword;
 
 int main(int argc, char *argv[])
 {
