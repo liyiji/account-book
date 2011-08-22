@@ -5,6 +5,7 @@
 
 const QString g_DatabaseDir = QString("database_accountBook/");
 const QString g_DatabaseName = QString("defaultDatabase.db");
+const QString g_PwdFile     = QString("password.dat");
 const QString g_BackupDir   = QString("database_accountBook_backup/");
 
 const QString g_Default     = QString("Default");
@@ -19,7 +20,7 @@ const QString g_Minus               = QString("-------------------");
 const QString TableNameAccount      = QString("ABAccount");
 const QString TableNameCategory     = QString("ABCategory");
 const QString TableNameTransaction  = QString("ABTransaction");
-
+const QString TableNamePassword     = QString("ABPassword");
 
 enum TreeItemType {
     BigTypeItem,
