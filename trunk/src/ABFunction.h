@@ -52,6 +52,8 @@ QString initDatabaseFile(QString argv_1 = "");
 
 /// 是否是合法的dbName
 bool isValidDatabaseFile(QString fileName);
+/// 是否是合法的passwordFileName
+bool isValidPasswordFile(QString fileName);
 /// 是否是合法的backupDbName
 bool isBackupDatabaseFile(QString fileName);
 

@@ -275,14 +275,14 @@ QString initDatabaseFile(QString argv_1)
     if (argv_1.isEmpty()) {
         /// 如果没有传进使用的dbName
 
-        /// 删除掉文件名不符合规范的文件
+        /// 删除掉数据文件夹里边所有不是defaultDatabase.db也不是password.dat的文件
         QStringList sl = dataDir.entryList();
         for (int i = 0; i < sl.count(); i++) {
             QString str = sl.at(i);
-            if (isValidDatabaseFile(str)) {
+            if (isValidDatabaseFile(str) || isValidPasswordFile(str)) {
                 continue;
             }
-            QFile::remove(str);
+            QFile::remove(g_WorkDir + g_DatabaseDir + str);
         }
         strDbName = g_WorkDir + g_DatabaseDir + g_DatabaseName;
     } else {
@@ -304,6 +304,15 @@ bool isValidDatabaseFile(QString fileName)
 {
     /// "defaultDatabase.db"
     if (fileName == g_DatabaseName)
+        return true;
+
+    return false;
+}
+
+bool isValidPasswordFile(QString fileName)
+{
+    /// "password.dat"
+    if (fileName == g_PwdFile)
         return true;
 
     return false;
