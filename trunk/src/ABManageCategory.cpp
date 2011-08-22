@@ -1,6 +1,7 @@
 
 #include <cassert>
 
+#include <QDebug>
 #include <QMessageBox>
 
 #include "ABManageCategory.h"

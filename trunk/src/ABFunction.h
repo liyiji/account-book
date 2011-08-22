@@ -57,4 +57,7 @@ bool isValidPasswordFile(QString fileName);
 /// 是否是合法的backupDbName
 bool isBackupDatabaseFile(QString fileName);
 
+/// 返回一个QString的Length，其中一个中文字符算2个长度
+int lengthOfStr(QString);
+
 #endif // ABFUNCTION_H

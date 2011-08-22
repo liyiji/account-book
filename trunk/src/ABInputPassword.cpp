@@ -1,6 +1,7 @@
 
 #include <cassert>
 
+#include <QDebug>
 #include <QFile>
 #include <QMessageBox>
 #include <QTextStream>

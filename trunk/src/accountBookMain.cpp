@@ -1,6 +1,7 @@
 
 #include <cassert>
 
+#include <QDebug>
 #include <QDir>
 #include <QObject>
 #include <QApplication>
@@ -18,7 +19,7 @@
   4、menuBar的Action
   5、table上右键点击的contextMenu
   6、密码的加密解密
-  7、
+  7、输出txt文件的时候，如果点击取消，也会显示“备份成功”的bug
   8、
   界面：
   1、TreeWidget的显示及更新
@@ -41,6 +42,7 @@
   tableAccount的顺序总是出问题
   显示某个时间点时候的所有账户余额
   添加/修改 transaction的时候判断是否在未来时间
+  输出txt文件的格式修改，使之对齐
 
   CANCELED :
   tableWidget * 4改为TreeWidget * 4

@@ -1,6 +1,7 @@
 
 #include <cassert>
 
+#include <QDebug>
 #include <QDir>
 #include <QDateTime>
 #include <QSqlQuery>
@@ -794,12 +795,23 @@ void ABMainWindow::exportTransactionsAsTextFile(bool bNotice)
         QStringList transactions = transactionList(/*beginYear, beginMonth, beginDay, beginHour, beginMinute,
                                                    endYear, endMonth, endDay, endHour, endMinute*/);
 
+        int maxLength = 0;
+        for (int i = 0; i < transactions.count(); i++) {
+            int iLength = lengthOfStr(transactions.at(i));
+            if (maxLength < iLength) {
+                maxLength = iLength;
+            }
+        }
+        QString sep;
+        sep.fill('-', maxLength);
+
         QFile f(strFilename);
         f.open(QFile::WriteOnly);
         QTextStream ts(&f);
         ts << "Transaction count is : " << transactions.count() << "\n\n";
 
         for (int i = 0; i < transactions.count(); i++) {
+//            ts << sep << "\n";
             ts << transactions.at(i) << "\n";
         }
         f.close();

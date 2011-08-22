@@ -1,7 +1,9 @@
 
+#include <QDebug>
 #include <QDir>
 #include <QDate>
 #include <QTime>
+#include <QString>
 #include <QMessageBox>
 
 #include "ABFunction.h"
@@ -325,4 +327,18 @@ bool isBackupDatabaseFile(QString fileName)
         return true;
 
     return false;
+}
+
+int lengthOfStr(QString str)
+{
+    int length = str.length();
+    for (int i = 0; i < str.length(); i++) {
+        char c = str.at(i).toLatin1();
+        if (c == 0) {
+            /// not ASCII char
+            length++;
+        }
+    }
+
+    return length;
 }

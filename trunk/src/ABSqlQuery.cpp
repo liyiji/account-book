@@ -1,6 +1,7 @@
 
 #include <cassert>
 
+#include <QDebug>
 #include <QMap>
 #include <QVariant>
 #include <QSqlQuery>
@@ -915,20 +916,20 @@ QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beg
         QString dt = YMDHM2yyyymmddhhmm(year, month, day, hour, minute);
         QString sSum = getMoneyFormNumber(sum);
 
-        if (bigMax < bigType.count())
-            bigMax = bigType.count();
-        if (midMax < midType.count())
-            midMax = midType.count();
-        if (smallMax < smallType.count())
-            smallMax = smallType.count();
-        if (sumMax < sSum.count())
-            sumMax = sSum.count();
-        if (fromMax < fromAccount.count())
-            fromMax = fromAccount.count();
-        if (toMax < toAccount.count())
-            toMax = toAccount.count();
-        if (detailMax < detail.count())
-            detailMax = detail.count();
+        if (bigMax < lengthOfStr(bigType))
+            bigMax = lengthOfStr(bigType);
+        if (midMax < lengthOfStr(midType))
+            midMax = lengthOfStr(midType);
+        if (smallMax < lengthOfStr(smallType))
+            smallMax = lengthOfStr(smallType);
+        if (sumMax < lengthOfStr(sSum))
+            sumMax = lengthOfStr(sSum);
+        if (fromMax < lengthOfStr(fromAccount))
+            fromMax = lengthOfStr(fromAccount);
+        if (toMax < lengthOfStr(toAccount))
+            toMax = lengthOfStr(toAccount);
+        if (detailMax < lengthOfStr(detail))
+            detailMax = lengthOfStr(detail);
 
         slBig.append(bigType);
         slMid.append(midType);
@@ -943,24 +944,24 @@ QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beg
     for (int i = 0; i < slBig.count(); i++) {
         QString type;
         type.append(slBig.at(i));
-        if (slBig.at(i).count() < bigMax) {
-            int j = bigMax - slBig.at(i).count();
+        if (lengthOfStr(slBig.at(i)) < bigMax) {
+            int j = bigMax - lengthOfStr(slBig.at(i));
             for (int k = 0; k < j; k++) {
                 type.append(" ");
             }
         }
         type.append(CategorySeparator);
         type.append(slMid.at(i));
-        if (slMid.at(i).count() < midMax) {
-            int j = midMax - slMid.at(i).count();
+        if (lengthOfStr(slMid.at(i)) < midMax) {
+            int j = midMax - lengthOfStr(slMid.at(i));
             for (int k = 0; k < j; k++) {
                 type.append(" ");
             }
         }
         type.append(CategorySeparator);
         type.append(slSmall.at(i));
-        if (slSmall.at(i).count() < smallMax) {
-            int j = smallMax - slSmall.at(i).count();
+        if (lengthOfStr(slSmall.at(i)) < smallMax) {
+            int j = smallMax - lengthOfStr(slSmall.at(i));
             for (int k = 0; k < j; k++) {
                 type.append(" ");
             }
@@ -968,16 +969,16 @@ QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beg
 
         QString fromTo;
         fromTo.append(slFrom.at(i));
-        if (slFrom.at(i).count() < fromMax) {
-            int j = fromMax - slFrom.at(i).count();
+        if (lengthOfStr(slFrom.at(i)) < fromMax) {
+            int j = fromMax - lengthOfStr(slFrom.at(i));
             for (int k = 0; k < j; k++) {
                 fromTo.append(" ");
             }
         }
         fromTo.append(CategorySeparator);
         fromTo.append(slTo.at(i));
-        if (slTo.at(i).count() < toMax) {
-            int j = toMax - slTo.at(i).count();
+        if (lengthOfStr(slTo.at(i)) < toMax) {
+            int j = toMax - lengthOfStr(slTo.at(i));
             for (int k = 0; k < j; k++) {
                 fromTo.append(" ");
             }
@@ -992,15 +993,14 @@ QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beg
         }
         sSum.append(slSum.at(i));
 
-
         QString tran = slDt.at(i)
-                + QString(" ")
+                + QString("  |  ")
                 + type
-                + QString("\t")
+                + QString("  |  ")
                 + sSum
-                + QString("\t")
+                + QString("  |  ")
                 + fromTo
-                + QString("\t")
+                + QString("  |  ")
                 + slDetail.at(i);
 
         sl.append(tran);
