@@ -438,7 +438,7 @@
        <item row="8" column="0">
         <widget class="QPushButton" name="buttonResize">
          <property name="text">
-          <string>&amp;Resize Columns and Rows</string>
+          <string>Resize Columns and Rows</string>
          </property>
         </widget>
        </item>
