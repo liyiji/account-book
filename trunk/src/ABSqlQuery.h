@@ -25,7 +25,10 @@ void initDatabase(QSqlDatabase& db);
 void createAccountTable();
 void createCategoryTable();
 void createTransactionTable();
+void createPwdTable();
 
+/// drop table
+void dropPwdtable();
 
 /// Insert item
 void insertItemInAccount(QString Name,

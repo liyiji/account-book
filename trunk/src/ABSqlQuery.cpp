@@ -56,6 +56,9 @@ void initDatabase(QSqlDatabase& db)
     if (slTables.contains(TableNameTransaction) == false) {
         createTransactionTable();
     }
+
+    extern bool g_UsePassword;
+    g_UsePassword = slTables.contains(TableNamePassword);
 }
 
 void createAccountTable()
@@ -113,6 +116,25 @@ void createTransactionTable()
     s1.append("Detail           char(100), ");
     s1.append("InsertTime       char(100)");
     s1.append(")");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+}
+
+void createPwdTable()
+{
+    QSqlQuery q1;
+    QString s1;
+    s1.append("CREATE TABLE ");
+    s1.append(TableNamePassword);
+    s1.append(" (Use bool)");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+}
+
+void dropPwdtable()
+{
+    QSqlQuery q1;
+    QString s1;
+    s1.append("DROP TABLE ");
+    s1.append(TableNamePassword);
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
 }
 
