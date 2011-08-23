@@ -17,6 +17,7 @@
     table上右键点击的contextMenu
     界面：
     TreeWidget的显示及更新
+    许多个图标
 
   NEED TEST :
     修改Category

@@ -337,18 +337,26 @@ void ABTransactionDetail::accept()
         if (m_iYear > QDate::currentDate().year()) {
             errMsgList.append("Error : Transaction occurs in future.");
             bFoundError = true;
-        } else if (m_iMonth > QDate::currentDate().month()) {
-            errMsgList.append("Error : Transaction occurs in future.");
-            bFoundError = true;
-        } else if (m_iDay > QDate::currentDate().day()) {
-            errMsgList.append("Error : Transaction occurs in future.");
-            bFoundError = true;
-        } else if (m_iHour > QTime::currentTime().hour()) {
-            errMsgList.append("Error : Transaction occurs in future.");
-            bFoundError = true;
-        } else if (m_iMinute > QTime::currentTime().minute()) {
-            errMsgList.append("Error : Transaction occurs in future.");
-            bFoundError = true;
+        } else if (m_iYear == QDate::currentDate().year()) {
+            if (m_iMonth > QDate::currentDate().month()) {
+                errMsgList.append("Error : Transaction occurs in future.");
+                bFoundError = true;
+            } else if (m_iMonth == QDate::currentDate().month()) {
+                if (m_iDay > QDate::currentDate().day()) {
+                    errMsgList.append("Error : Transaction occurs in future.");
+                    bFoundError = true;
+                } else if (m_iDay == QDate::currentDate().day()) {
+                    if (m_iHour > QTime::currentTime().hour()) {
+                        errMsgList.append("Error : Transaction occurs in future.");
+                        bFoundError = true;
+                    } else if (m_iHour == QTime::currentTime().hour()) {
+                        if (m_iMinute > QTime::currentTime().minute()) {
+                            errMsgList.append("Error : Transaction occurs in future.");
+                            bFoundError = true;
+                        }
+                    }
+                }
+            }
         }
         if (m_dialogType == Income) {
             if (m_bNewCategory) {
