@@ -795,15 +795,18 @@ void ABMainWindow::exportTransactionsAsTextFile(bool bNotice)
         QStringList transactions = transactionList(/*beginYear, beginMonth, beginDay, beginHour, beginMinute,
                                                    endYear, endMonth, endDay, endHour, endMinute*/);
 
-        int maxLength = 0;
-        for (int i = 0; i < transactions.count(); i++) {
-            int iLength = lengthOfStr(transactions.at(i));
-            if (maxLength < iLength) {
-                maxLength = iLength;
-            }
-        }
+        bool bAddLineSeparator = false;
         QString sep;
-        sep.fill('-', maxLength);
+        if (bAddLineSeparator) {
+            int maxLength = 0;
+            for (int i = 0; i < transactions.count(); i++) {
+                int iLength = lengthOfStr(transactions.at(i));
+                if (maxLength < iLength) {
+                    maxLength = iLength;
+                }
+            }
+            sep.fill('-', maxLength);
+        }
 
         QFile f(strFilename);
         f.open(QFile::WriteOnly);
@@ -811,16 +814,17 @@ void ABMainWindow::exportTransactionsAsTextFile(bool bNotice)
         ts << "Transaction count is : " << transactions.count() << "\n\n";
 
         for (int i = 0; i < transactions.count(); i++) {
-//            ts << sep << "\n";
+            if (bAddLineSeparator) {
+                ts << sep << "\n";
+            }
             ts << transactions.at(i) << "\n";
         }
         f.close();
-    }
-
-    if (bNotice) {
-        QMessageBox::about(this,
-                           "Succeed",
-                           "Export text file done.");
+        if (bNotice) {
+            QMessageBox::about(this,
+                               "Succeed",
+                               "Export text file done.");
+        }
     }
 }
 
