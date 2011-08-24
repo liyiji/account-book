@@ -17,7 +17,7 @@ RCC_DIR     = .rcc
 UI_DIR      = .uidir
 
 QT      +=  gui sql
-CONFIG 	+=  warn_on
+CONFIG  +=  warn_on
 
 #DEFINES += DEBUG_VERSION
 
