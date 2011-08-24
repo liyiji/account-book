@@ -811,7 +811,9 @@ void ABMainWindow::slotMenuAction(QAction *action)
         slotResizeColumnsAndRow();
     } else if (action == ui->actionAbout_accountBook) {
         /// TODO : ÍêÉÆ
-        QMessageBox::about(this, "About", "An account book small software, by Li Yiji.");
+        QString msg = "accountBook\n\nCopyright 2011-forever\n\nhttp://code.google.com/p/account-book\n\nLi Yiji\n\nliyiji.vip@gmail.com";
+        QMessageBox::about(this, "accountBook",
+                           msg);
     } else if (action == ui->actionBackup_Data_File) {
         backupDatabaseFile(true);
     } else if (action == ui->actionExport_Data_As_Text_File) {

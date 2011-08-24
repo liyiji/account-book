@@ -18,7 +18,6 @@
     界面：
     TreeWidget的显示及更新
     许多个图标
-    输入密码的时候显示*而不是密码本身
 
   NEED TEST :
     修改Category
@@ -78,6 +77,7 @@ int main(int argc, char *argv[])
     输出txt文件的时候，如果点击取消，也会显示“备份成功”的bug
     加密码
     密码的加密解密
+    输入密码的时候显示*而不是密码本身
 
   CANCELED :
     tableWidget * 4改为TreeWidget * 4
