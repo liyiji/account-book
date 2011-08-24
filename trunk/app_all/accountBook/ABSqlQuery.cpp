@@ -742,6 +742,8 @@ QStringList accountList()
         names.append(q1.value(0).toString());
     }
 
+    qSort(names);
+
     return names;
 }
 
@@ -755,6 +757,10 @@ QStringList surplus0AccountList()
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
     while (q1.next()) {
         names.append(q1.value(0).toString());
+    }
+
+    if (names.count() > 1) {
+        qSort(names);
     }
 
     return names;
@@ -825,6 +831,8 @@ QStringList midTypeList(QString bigType)
         sl.append(q1.value(0).toString());
     }
 
+    qSort(sl);
+
     return sl;
 }
 
@@ -849,6 +857,35 @@ QStringList smallTypeList(QString bigType, QString midType)
     while (q1.next()) {
         sl.append(q1.value(0).toString());
     }
+
+    if (sl.count() > 1) {
+        qSort(sl);
+    }
+
+    return sl;
+}
+
+QStringList midTypeSepSmallTypeList(QString bigType)
+{
+    QStringList sl;
+    if (invalidBigType(bigType)) {
+        warnMsgParameterInvalid();
+        return sl;
+    }
+
+    QSqlQuery q1;
+    QString s1;
+    s1 = QString("SELECT MidType, SmallType FROM ")
+         + TableNameCategory
+         + QString(" WHERE BigType = '")
+         + bigType
+         + QString("' ORDER BY MidType, SmallType");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+    while (q1.next()) {
+        sl.append(q1.value(0).toString() + CategorySeparator + q1.value(1).toString());
+    }
+
+    qSort(sl);
 
     return sl;
 }

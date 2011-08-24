@@ -109,6 +109,9 @@ QStringList midTypeList(QString bigType);
 /// 根据bigType, midType返回smallType的List，是Distinct的
 QStringList smallTypeList(QString bigType, QString midType);
 
+/// 根据bigType返回"MidType -> SmallType"的List，是Distinct的
+QStringList midTypeSepSmallTypeList(QString bigType);
+
 /// 按照时间排序，返回所有的Transaction
 QStringList transactionList(int beginYear = 0,
                             int beginMonth = 1,
