@@ -1045,6 +1045,55 @@ QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beg
     return sl;
 }
 
+QVector<TransactionItem> getTransactionsByMonth(int iYear, QString strMonth)
+{
+    QVector<TransactionItem> vec;
+
+    int iMonth = -1;
+    if (strMonth != "All") {
+        iMonth = strMonth.toInt();
+        if (iMonth <= 0 || iMonth > 12) {
+            return vec;
+        }
+    }
+
+    QSqlQuery q1;
+    QString s1;
+    s1.append("SELECT * FROM ");
+    s1.append(TableNameTransaction);
+    s1.append(" WHERE Year = ");
+    s1.append(QString::number(iYear));
+    if (strMonth == "All") {
+        s1.append(" ORDER BY Month, Day, Hour, Minute");
+    } else {
+        s1.append(" and Month = ");
+        s1.append(QString::number(iMonth));
+        s1.append(" ORDER BY Day, Hour, Minute");
+    }
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+    while (q1.next()) {
+
+        TransactionItem curItem;
+        curItem.Type            = q1.value(0).toString();
+        curItem.CategoryMid     = q1.value(1).toString();
+        curItem.CategorySmall   = q1.value(2).toString();
+        curItem.Year            = q1.value(3).toInt();
+        curItem.Month           = q1.value(4).toInt();
+        curItem.Day             = q1.value(5).toInt();
+        curItem.Hour            = q1.value(6).toInt();
+        curItem.Minute          = q1.value(7).toInt();
+        curItem.Sum             = q1.value(8).toDouble();
+        curItem.FromAccount     = q1.value(9).toString();
+        curItem.ToAccount       = q1.value(10).toString();
+        curItem.Detail          = q1.value(11).toString();
+        curItem.InsertTime      = q1.value(12).toString();
+
+        vec.append(curItem);
+    }
+
+    return vec;
+}
+
 bool invalidBigType(QString bigType)
 {
     if (bigType != g_Income && bigType != g_Expense) {
