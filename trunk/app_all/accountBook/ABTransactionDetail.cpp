@@ -6,6 +6,7 @@
 
 #include "ABTransactionDetail.h"
 #include "ABFunction.h"
+#include "ABSqlQuery.h"
 
 ABTransactionDetail::ABTransactionDetail(TransactionType dialogType, QWidget *parent) : QDialog(parent)
 {
@@ -162,98 +163,32 @@ void ABTransactionDetail::initUiByType(TransactionType dialogType)
         ui->label_5->setText("To Account :");
 
         /// 初始化 Category 列表
-        QSqlQuery q1;
-        QString s1;
-        s1.append("SELECT MidType, SmallType FROM ");
-        s1.append(TableNameCategory);
-        s1.append(" WHERE BigType = '");
-        s1.append(g_Income);
-        s1.append("' ORDER BY MidType, SmallType");
-        if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
-
-        while (q1.next()) {
-            QString strMid = q1.value(0).toString();
-            QString strSmall=  q1.value(1).toString();
-            ui->comboBox->addItem(strMid + CategorySeparator + strSmall);
-        }
+        ui->comboBox->clear();
+        ui->comboBox->addItems(midTypeSepSmallTypeList(g_Income));
 
         /// 初始化 parent Category 列表
-        QSqlQuery q2;
-        QString s2;
-        s2.append("SELECT DISTINCT MidType FROM ");
-        s2.append(TableNameCategory);
-        s2.append(" WHERE BigType = '");
-        s2.append(g_Income);
-        s2.append("' ORDER BY MidType");
-        if (!q2.exec(s2)) warnMsgDatabaseOperationFailed();
-
-        ui->comboBoxParentCategory->addItem("");
-        while (q2.next()) {
-            QString strMid = q2.value(0).toString();
-            ui->comboBoxParentCategory->addItem(strMid);
-        }
+        ui->comboBoxParentCategory->clear();
+        ui->comboBoxParentCategory->addItems(midTypeList(g_Income));
 
         /// 初始化 To Account 列表
-        QSqlQuery q3;
-        QString s3;
-        s3.append("SELECT Name FROM ");
-        s3.append(TableNameAccount);
-        s3.append(" ORDER BY Name");
-        if (!q3.exec(s3)) warnMsgDatabaseOperationFailed();
-
-        while (q3.next()) {
-            QString accountName = q3.value(0).toString();
-            ui->comboBox_2->addItem(accountName);
-        }
+        ui->comboBox_2->clear();
+        ui->comboBox_2->addItems(accountList());
     } else if (dialogType == Expense) {
         setWindowTitle(QString("Add New ") + g_Expense);
         ui->label_5->setText("From Account :");
         ui->checkBoxNewAccount->setVisible(false);
 
         /// 初始化 Category 列表
-        QSqlQuery q1;
-        QString s1;
-        s1.append("SELECT MidType, SmallType FROM ");
-        s1.append(TableNameCategory);
-        s1.append(" WHERE BigType = '");
-        s1.append(g_Expense);
-        s1.append("' ORDER BY MidType, SmallType");
-        if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
-
-        while (q1.next()) {
-            QString strMid = q1.value(0).toString();
-            QString strSmall=  q1.value(1).toString();
-            ui->comboBox->addItem(strMid + CategorySeparator + strSmall);
-        }
+        ui->comboBox->clear();
+        ui->comboBox->addItems(midTypeSepSmallTypeList(g_Expense));
 
         /// 初始化 parent Category 列表
-        QSqlQuery q2;
-        QString s2;
-        s2.append("SELECT DISTINCT MidType FROM ");
-        s2.append(TableNameCategory);
-        s2.append(" WHERE BigType = '");
-        s2.append(g_Expense);
-        s2.append("' ORDER BY MidType");
-        if (!q2.exec(s2)) warnMsgDatabaseOperationFailed();
-
-        ui->comboBoxParentCategory->addItem("");
-        while (q2.next()) {
-            QString strMid = q2.value(0).toString();
-            ui->comboBoxParentCategory->addItem(strMid);
-        }
+        ui->comboBoxParentCategory->clear();
+        ui->comboBoxParentCategory->addItems(midTypeList(g_Expense));
 
         /// 初始化 From Account 列表
-        QSqlQuery q3;
-        QString s3;
-        s3.append("SELECT Name FROM ");
-        s3.append(TableNameAccount);
-        s3.append(" ORDER BY Name");
-        if (!q3.exec(s3)) warnMsgDatabaseOperationFailed();
-
-        while (q3.next()) {
-            QString accountName = q3.value(0).toString();
-            ui->comboBox_2->addItem(accountName);
-        }
+        ui->comboBox_2->clear();
+        ui->comboBox_2->addItems(accountList());
     } else if (dialogType == Liquidity) {
         setWindowTitle(QString("Add New ") + g_Liquidity);
         ui->label_3->setText("From Account :");
@@ -261,30 +196,12 @@ void ABTransactionDetail::initUiByType(TransactionType dialogType)
         ui->checkNewCategory->setVisible(false);
 
         /// 初始化 From Account 列表
-        QSqlQuery q2;
-        QString s2;
-        s2.append("SELECT Name FROM ");
-        s2.append(TableNameAccount);
-        s2.append(" ORDER BY Name");
-        if (!q2.exec(s2)) warnMsgDatabaseOperationFailed();
-
-        while (q2.next()) {
-            QString accountName = q2.value(0).toString();
-            ui->comboBox->addItem(accountName);
-        }
+        ui->comboBox->clear();
+        ui->comboBox->addItems(accountList());
 
         /// 初始化 To Account 列表
-        QSqlQuery q3;
-        QString s3;
-        s3.append("SELECT Name FROM ");
-        s3.append(TableNameAccount);
-        s3.append(" ORDER BY Name");
-        if (!q3.exec(s3)) warnMsgDatabaseOperationFailed();
-
-        while (q3.next()) {
-            QString accountName = q3.value(0).toString();
-            ui->comboBox_2->addItem(accountName);
-        }
+        ui->comboBox_2->clear();
+        ui->comboBox_2->addItems(accountList());
     } else {
         assert(0);
     }
