@@ -16,6 +16,10 @@ ABInputPassword::ABInputPassword(InputPasswordDialogType iType, QWidget *parent)
     ui = new Ui_ABInpurPasswordDialog;
     ui->setupUi(this);
 
+    ui->lineCur->setEchoMode(QLineEdit::Password);
+    ui->lineNew->setEchoMode(QLineEdit::Password);
+    ui->lineConfirm->setEchoMode(QLineEdit::Password);
+
     m_iType = iType;
     if (m_iType == SetPwd) {
         setWindowTitle("Set new password.");
