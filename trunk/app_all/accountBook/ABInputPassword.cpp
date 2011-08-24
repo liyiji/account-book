@@ -113,7 +113,6 @@ bool ABInputPassword::apply()
                 dropPwdtable();
                 return true;
             } else {
-                /// TODO :
                 f.open(QFile::ReadOnly);
                 QTextStream ts(&f);
                 QString pwdMd5 = ts.readLine();
@@ -148,7 +147,6 @@ bool ABInputPassword::apply()
             }
             QString fn = g_WorkDir + g_DatabaseDir + g_PwdFile;
             if (!m_strConfirmedPwd.isEmpty()) {
-                /// TODO :
                 QFile f(fn);
                 f.open(QFile::WriteOnly);
                 QTextStream ts(&f);
