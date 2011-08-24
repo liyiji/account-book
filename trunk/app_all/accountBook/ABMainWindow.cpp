@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QDateTime>
-#include <QSqlQuery>
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QTextStream>
@@ -373,55 +372,35 @@ void ABMainWindow::loadData(int iYear, QString strMonth)
 
 void ABMainWindow::showTransactionData(int iYear, QString strMonth)
 {
-    int iMonth = -1;
-    if (strMonth != "All") {
-        iMonth = strMonth.toInt();
-        if (iMonth <= 0 || iMonth > 12) {
-            return;
-        }
-    }
-
     ui->tableIncome->setRowCount(0);
     ui->tableExpense->setRowCount(0);
     ui->tableLiquidity->setRowCount(0);
 
     resetTableWidgetsSettings(false, true, true, true);
 
-    QSqlQuery q1;
-    QString s1;
-    s1.append("SELECT * FROM ");
-    s1.append(TableNameTransaction);
-    s1.append(" WHERE Year = ");
-    s1.append(QString::number(iYear));
-    if (strMonth == "All") {
-        s1.append(" ORDER BY Month, Day, Hour, Minute");
-    } else {
-        s1.append(" and Month = ");
-        s1.append(QString::number(iMonth));
-        s1.append(" ORDER BY Day, Hour, Minute");
-    }
-    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
-
     float wholeIncome = 0.0;
     float wholeExpense = 0.0;
     float wholeSurplus = 0.0;
 
-    while (q1.next()) {
+    int iMonth = -1;
+    if (strMonth != "All") {
+        iMonth = strMonth.toInt();
+        if (iMonth <= 0 || iMonth > 12) {
+            ui->label_9->setText(getMoneyFormNumber(wholeIncome));
+            ui->label_11->setText(getMoneyFormNumber(wholeExpense));
+            ui->label_13->setText(getMoneyFormNumber(wholeSurplus));
 
-        TransactionItem curItem;
-        curItem.Type            = q1.value(0).toString();
-        curItem.CategoryMid     = q1.value(1).toString();
-        curItem.CategorySmall   = q1.value(2).toString();
-        curItem.Year            = q1.value(3).toInt();
-        curItem.Month           = q1.value(4).toInt();
-        curItem.Day             = q1.value(5).toInt();
-        curItem.Hour            = q1.value(6).toInt();
-        curItem.Minute          = q1.value(7).toInt();
-        curItem.Sum             = q1.value(8).toDouble();
-        curItem.FromAccount     = q1.value(9).toString();
-        curItem.ToAccount       = q1.value(10).toString();
-        curItem.Detail          = q1.value(11).toString();
-        curItem.InsertTime      = q1.value(12).toString();
+            resizeTableWidgetIncomeExpenseLiquidity();
+
+            return;
+        }
+    }
+
+    QVector<TransactionItem> vecTrans = getTransactionsByMonth(iYear, strMonth);
+
+    for (int i = 0; i < vecTrans.count(); i++) {
+
+        TransactionItem curItem = vecTrans.at(i);
 
         if (curItem.Type == g_Income) {
             wholeIncome += curItem.Sum;
@@ -538,25 +517,14 @@ void ABMainWindow::showCategoryData(int iYear, QString strMonth)
 
     initStatisticsTree();
 
-    QSqlQuery q1;
-    QString s1;
-    s1.append("SELECT Type, CategoryMid, CategorySmall, Sum FROM ");
-    s1.append(TableNameTransaction);
-    s1.append(" WHERE Year = ");
-    s1.append(QString::number(iYear));
-    if (strMonth == "All") {
-        s1.append(" ORDER BY Type, CategoryMid, CategorySmall");
-    } else {
-        s1.append(" AND Month = ");
-        s1.append(QString::number(iMonth));
-        s1.append(" ORDER BY Type, CategoryMid, CategorySmall");
-    }
-    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
-    while (q1.next()) {
-        QString bigType     = q1.value(0).toString();
-        QString midType     = q1.value(1).toString();
-        QString smallType   = q1.value(2).toString();
-        float   sum         = q1.value(3).toDouble();
+    QVector<TransactionItem> vecTrans = getTransactionsByMonth(iYear, strMonth);
+    for (int i = 0; i < vecTrans.count(); i++) {
+
+        TransactionItem item = vecTrans.at(i);
+        QString bigType     = item.Type;
+        QString midType     = item.CategoryMid;
+        QString smallType   = item.CategorySmall;
+        float   sum         = item.Sum;
 
         if (bigType == g_Liquidity) {
             if (midType == g_Default && smallType == g_Default)
