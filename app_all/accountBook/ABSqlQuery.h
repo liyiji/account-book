@@ -112,7 +112,7 @@ QStringList smallTypeList(QString bigType, QString midType);
 /// 根据bigType返回"MidType -> SmallType"的List，是Distinct的
 QStringList midTypeSepSmallTypeList(QString bigType);
 
-/// 按照时间排序，返回所有的Transaction
+/// 按照时间排序，返回所有的Transaction，按照字长格式化的结果，用于输出txt文件
 QStringList transactionList(int beginYear = 0,
                             int beginMonth = 1,
                             int beginDay = 1,
@@ -123,6 +123,9 @@ QStringList transactionList(int beginYear = 0,
                             int endDay = 31,
                             int endHour = 23,
                             int endMinute = 59);
+
+/// 返回某年或者某年某月所有的Transaction，按照时间排序
+QVector<TransactionItem> getTransactionsByMonth(int iYear, QString strMonth);
 
 /// 判断bigType是否等于"Income"或者"Expense"
 bool invalidBigType(QString bigType);
