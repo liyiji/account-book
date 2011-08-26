@@ -16,6 +16,9 @@ ABInputPassword::ABInputPassword(InputPasswordDialogType iType, QWidget *parent)
     ui = new Ui_ABInpurPasswordDialog;
     ui->setupUi(this);
 
+    QIcon ic(g_IconStr);
+    setWindowIcon(ic);
+
     ui->lineCur->setEchoMode(QLineEdit::Password);
     ui->lineNew->setEchoMode(QLineEdit::Password);
     ui->lineConfirm->setEchoMode(QLineEdit::Password);

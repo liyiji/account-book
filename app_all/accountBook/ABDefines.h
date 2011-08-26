@@ -3,6 +3,8 @@
 
 #include <QString>
 
+const QString g_IconStr     = QString(":/test.png");
+
 const QString g_DatabaseDir = QString("database_accountBook/");
 const QString g_DatabaseName = QString("defaultDatabase.db");
 const QString g_PwdFile     = QString("password.dat");
