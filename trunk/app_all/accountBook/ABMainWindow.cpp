@@ -88,6 +88,9 @@ void ABMainWindow::keyPressEvent(QKeyEvent *event)
 
 void ABMainWindow::initUi()
 {
+    QIcon ic(g_IconStr);
+    setWindowIcon(ic);
+
     QString strWindowTitle("accountBook");
     setWindowTitle(strWindowTitle);
 
@@ -170,6 +173,12 @@ void ABMainWindow::initUi()
     ui->tableLiquidity->setSelectionMode(QAbstractItemView::SingleSelection);
 
     initStatisticsTree();
+
+    QPixmap pm(":/banner.png");
+    ui->labelBanner->setPixmap(pm);
+    
+    /// TODO :
+    ui->labelBanner->setVisible(false);
 }
 
 void ABMainWindow::initStatisticsTree()
@@ -811,7 +820,7 @@ void ABMainWindow::slotMenuAction(QAction *action)
         slotResizeColumnsAndRow();
     } else if (action == ui->actionAbout_accountBook) {
         /// TODO : ÍêÉÆ
-        QString msg = "accountBook\n\nCopyright 2011-forever\n\nhttp://code.google.com/p/account-book\n\nLi Yiji\n\nliyiji.vip@gmail.com";
+        QString msg = "accountBook\n\nCopyright (C) 2011-2011\n\nhttp://code.google.com/p/account-book/\n\nLi Yiji\n\nliyiji.vip@gmail.com";
         QMessageBox::about(this, "accountBook",
                            msg);
     } else if (action == ui->actionBackup_Data_File) {
