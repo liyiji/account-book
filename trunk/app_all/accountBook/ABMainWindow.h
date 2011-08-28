@@ -23,6 +23,7 @@ private:
 
     void initUi();
     void initStatisticsTree();
+    void initTabCalc();
     void initConnection();
     void loadData(int iYear, QString strMonth);
     void showTransactionData(int iYear, QString strMonth);
@@ -42,6 +43,7 @@ private:
 
     void exportTransactionsAsTextFile(bool bNotice);
     void setNewPassword();
+    void updateCalcLabels();
 
 private slots:
     void slotMenuAction(QAction *);
@@ -60,6 +62,11 @@ private slots:
     void slotShowBigTypeInTree();
     void slotShowMidTypeInTree();
     void slotShowSmallTypeInTree();
+
+    void slotPlus();
+    void slotMinus();
+    void slotMultiply();
+    void slotDivide();
 
     void slotDoubleClickTableTransaction(QTableWidgetItem*);
     void slotReloadCurTimeAccountStatus();

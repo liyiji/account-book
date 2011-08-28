@@ -112,6 +112,8 @@ void ABMainWindow::initUi()
     ui->mainTabWidget->setTabText(index, g_Expense);
     index = ui->mainTabWidget->indexOf(ui->tabLiquidity);
     ui->mainTabWidget->setTabText(index, g_Liquidity);
+    index = ui->mainTabWidget->indexOf(ui->tabCompute);
+    ui->mainTabWidget->setTabText(index, g_Calculate);
 
     ui->mainTabWidget->setCurrentIndex(ui->mainTabWidget->indexOf(ui->tabStatistics));
 
@@ -174,11 +176,15 @@ void ABMainWindow::initUi()
 
     initStatisticsTree();
 
-    QPixmap pm(":/banner.png");
-    ui->labelBanner->setPixmap(pm);
-    
-    /// TODO :
-    ui->labelBanner->setVisible(false);
+    initTabCalc();
+
+    {
+        QPixmap pm(":/banner.png");
+        ui->labelBanner->setPixmap(pm);
+
+        /// TODO :
+        ui->labelBanner->setVisible(false);
+    }
 }
 
 void ABMainWindow::initStatisticsTree()
@@ -315,6 +321,91 @@ void ABMainWindow::initStatisticsTree()
     resizeTreeStatistics();
 }
 
+void ABMainWindow::initTabCalc()
+{
+    ui->label_6->clear();
+    ui->label_17->clear();
+    ui->label_19->clear();
+    ui->label_21->clear();
+    ui->label_30->clear();
+    ui->label_31->clear();
+    ui->label_32->clear();
+    ui->label_33->clear();
+    ui->label_34->clear();
+    ui->label_35->clear();
+    ui->label_36->clear();
+    ui->label_37->clear();
+    ui->label_38->clear();
+    ui->label_39->clear();
+    ui->label_40->clear();
+    ui->label_41->clear();
+    ui->label_42->clear();
+    ui->label_43->clear();
+    ui->label_44->clear();
+    ui->label_45->clear();
+    ui->label_46->clear();
+    ui->label_47->clear();
+    ui->label_48->clear();
+    ui->label_49->clear();
+    ui->label_50->clear();
+    ui->label_51->clear();
+    ui->label_52->clear();
+    ui->label_53->clear();
+    ui->label_54->clear();
+
+    ui->lineEdit->clear();
+    ui->lineEdit_2->clear();
+    ui->lineEdit_5->clear();
+    ui->lineEdit_6->clear();
+    ui->lineEdit_7->clear();
+    ui->lineEdit_8->clear();
+    ui->lineEdit_9->clear();
+    ui->lineEdit_10->clear();
+
+    ui->label_5->setAlignment(Qt::AlignCenter);
+    ui->label_6->setAlignment(Qt::AlignCenter);
+    ui->label_16->setAlignment(Qt::AlignCenter);
+    ui->label_17->setAlignment(Qt::AlignCenter);
+    ui->label_18->setAlignment(Qt::AlignCenter);
+    ui->label_19->setAlignment(Qt::AlignCenter);
+    ui->label_20->setAlignment(Qt::AlignCenter);
+    ui->label_21->setAlignment(Qt::AlignCenter);
+    ui->label_30->setAlignment(Qt::AlignCenter);
+    ui->label_31->setAlignment(Qt::AlignCenter);
+    ui->label_32->setAlignment(Qt::AlignCenter);
+    ui->label_33->setAlignment(Qt::AlignCenter);
+    ui->label_34->setAlignment(Qt::AlignCenter);
+    ui->label_35->setAlignment(Qt::AlignCenter);
+    ui->label_36->setAlignment(Qt::AlignCenter);
+    ui->label_37->setAlignment(Qt::AlignCenter);
+    ui->label_38->setAlignment(Qt::AlignCenter);
+    ui->label_39->setAlignment(Qt::AlignCenter);
+    ui->label_40->setAlignment(Qt::AlignCenter);
+    ui->label_41->setAlignment(Qt::AlignCenter);
+    ui->label_42->setAlignment(Qt::AlignCenter);
+    ui->label_43->setAlignment(Qt::AlignCenter);
+    ui->label_44->setAlignment(Qt::AlignCenter);
+    ui->label_45->setAlignment(Qt::AlignCenter);
+    ui->label_46->setAlignment(Qt::AlignCenter);
+    ui->label_47->setAlignment(Qt::AlignCenter);
+    ui->label_48->setAlignment(Qt::AlignCenter);
+    ui->label_49->setAlignment(Qt::AlignCenter);
+    ui->label_50->setAlignment(Qt::AlignCenter);
+    ui->label_51->setAlignment(Qt::AlignCenter);
+    ui->label_52->setAlignment(Qt::AlignCenter);
+    ui->label_53->setAlignment(Qt::AlignCenter);
+    ui->label_54->setAlignment(Qt::AlignCenter);
+
+    ui->lineEdit->setAlignment(Qt::AlignCenter);
+    ui->lineEdit_2->setAlignment(Qt::AlignCenter);
+    ui->lineEdit_5->setAlignment(Qt::AlignCenter);
+    ui->lineEdit_6->setAlignment(Qt::AlignCenter);
+    ui->lineEdit_7->setAlignment(Qt::AlignCenter);
+    ui->lineEdit_8->setAlignment(Qt::AlignCenter);
+    ui->lineEdit_9->setAlignment(Qt::AlignCenter);
+    ui->lineEdit_10->setAlignment(Qt::AlignCenter);
+}
+
 void ABMainWindow::initConnection()
 {
     connect(ui->menubar, SIGNAL(triggered(QAction*)), this, SLOT(slotMenuAction(QAction*)));
@@ -355,6 +446,11 @@ void ABMainWindow::initConnection()
             this, SLOT(slotReloadCurTimeAccountStatus()));
     connect(ui->dateTimeEdit, SIGNAL(dateTimeChanged(QDateTime)),
             this, SLOT(slotReloadAccountStatusByDataTime(QDateTime)));
+
+    connect(ui->buttonPlus, SIGNAL(released()), this, SLOT(slotPlus()));
+    connect(ui->buttonMinus, SIGNAL(released()), this, SLOT(slotMinus()));
+    connect(ui->buttonMultiply, SIGNAL(released()), this, SLOT(slotMultiply()));
+    connect(ui->buttonDivide, SIGNAL(released()), this, SLOT(slotDivide()));
 }
 
 void ABMainWindow::loadData(int iYear, QString strMonth)
@@ -810,6 +906,34 @@ void ABMainWindow::setNewPassword()
 {
     ABInputPassword dlg(ABInputPassword::SetPwd);
     dlg.exec();
+}
+
+void ABMainWindow::updateCalcLabels()
+{
+    ui->label_50->setText(ui->label_45->text());
+    ui->label_45->setText(ui->label_40->text());
+    ui->label_40->setText(ui->label_35->text());
+    ui->label_35->setText(ui->label_30->text());
+
+    ui->label_54->setText(ui->label_49->text());
+    ui->label_49->setText(ui->label_44->text());
+    ui->label_44->setText(ui->label_39->text());
+    ui->label_39->setText(ui->label_31->text());
+
+    ui->label_52->setText(ui->label_47->text());
+    ui->label_47->setText(ui->label_42->text());
+    ui->label_42->setText(ui->label_37->text());
+    ui->label_37->setText(ui->label_32->text());
+
+    ui->label_51->setText(ui->label_46->text());
+    ui->label_46->setText(ui->label_41->text());
+    ui->label_41->setText(ui->label_36->text());
+    ui->label_36->setText(ui->label_33->text());
+
+    ui->label_53->setText(ui->label_48->text());
+    ui->label_48->setText(ui->label_43->text());
+    ui->label_43->setText(ui->label_38->text());
+    ui->label_38->setText(ui->label_34->text());
 }
 
 void ABMainWindow::slotMenuAction(QAction *action)
@@ -1402,6 +1526,82 @@ void ABMainWindow::slotShowSmallTypeInTree()
     }
 
     resizeTreeStatistics();
+}
+
+void ABMainWindow::slotPlus()
+{
+    bool b1 = false;
+    bool b2 = false;
+    double a1 = ui->lineEdit->text().toDouble(&b1);
+    double a2 = ui->lineEdit_2->text().toDouble(&b2);
+    if (b1 && b2) {
+        ui->label_6->setText(QString::number(a1 + a2));
+        updateCalcLabels();
+        ui->label_30->setText(ui->lineEdit->text());
+        ui->label_31->setText(ui->label_5->text());
+        ui->label_32->setText(ui->lineEdit_2->text());
+        ui->label_33->setText("=");
+        ui->label_34->setText(ui->label_6->text());
+    } else {
+        ui->label_6->setText("Error");
+    }
+}
+
+void ABMainWindow::slotMinus()
+{
+    bool b1 = false;
+    bool b2 = false;
+    double a1 = ui->lineEdit_5->text().toDouble(&b1);
+    double a2 = ui->lineEdit_6->text().toDouble(&b2);
+    if (b1 && b2) {
+        ui->label_17->setText(QString::number(a1 - a2));
+        updateCalcLabels();
+        ui->label_30->setText(ui->lineEdit_5->text());
+        ui->label_31->setText(ui->label_16->text());
+        ui->label_32->setText(ui->lineEdit_6->text());
+        ui->label_33->setText("=");
+        ui->label_34->setText(ui->label_17->text());
+    } else {
+        ui->label_17->setText("Error");
+    }
+}
+
+void ABMainWindow::slotMultiply()
+{
+    bool b1 = false;
+    bool b2 = false;
+    double a1 = ui->lineEdit_7->text().toDouble(&b1);
+    double a2 = ui->lineEdit_8->text().toDouble(&b2);
+    if (b1 && b2) {
+        ui->label_19->setText(QString::number(a1 * a2));
+        updateCalcLabels();
+        ui->label_30->setText(ui->lineEdit_7->text());
+        ui->label_31->setText(ui->label_18->text());
+        ui->label_32->setText(ui->lineEdit_8->text());
+        ui->label_33->setText("=");
+        ui->label_34->setText(ui->label_19->text());
+    } else {
+        ui->label_19->setText("Error");
+    }
+}
+
+void ABMainWindow::slotDivide()
+{
+    bool b1 = false;
+    bool b2 = false;
+    double a1 = ui->lineEdit_9->text().toDouble(&b1);
+    double a2 = ui->lineEdit_10->text().toDouble(&b2);
+    if (b1 && b2) {
+        ui->label_21->setText(QString::number(a1 / a2));
+        updateCalcLabels();
+        ui->label_30->setText(ui->lineEdit_9->text());
+        ui->label_31->setText(ui->label_20->text());
+        ui->label_32->setText(ui->lineEdit_10->text());
+        ui->label_33->setText("=");
+        ui->label_34->setText(ui->label_21->text());
+    } else {
+        ui->label_21->setText("Error");
+    }
 }
 
 void ABMainWindow::slotDoubleClickTableTransaction(QTableWidgetItem*)
