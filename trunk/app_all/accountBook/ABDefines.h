@@ -14,6 +14,7 @@ const QString g_Default     = QString("Default");
 const QString g_Income      = QString("Income");
 const QString g_Expense     = QString("Expense");
 const QString g_Liquidity   = QString("Liquidity");
+const QString g_Calculate   = QString("Calculate");
 const QString g_Cash        = QString("Cash");
 
 const QString CategorySeparator     = QString(" -> ");
