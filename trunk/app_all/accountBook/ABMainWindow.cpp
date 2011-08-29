@@ -95,11 +95,8 @@ void ABMainWindow::initUi()
     setWindowTitle(strWindowTitle);
 
 #ifndef DEBUG_VERSION
-//    ui->menuImport_Export->setEnabled(false);
-//    ui->actionExport_Data_As_Text_File->setEnabled(false);
     ui->actionImport_another_data_file->setEnabled(false);
     ui->actionOptions->setEnabled(false);
-//    ui->actionSet_Password->setEnabled(false);
 #endif
 
     int index = -1;
@@ -112,8 +109,14 @@ void ABMainWindow::initUi()
     ui->mainTabWidget->setTabText(index, g_Expense);
     index = ui->mainTabWidget->indexOf(ui->tabLiquidity);
     ui->mainTabWidget->setTabText(index, g_Liquidity);
-    index = ui->mainTabWidget->indexOf(ui->tabCompute);
+    index = ui->mainTabWidget->indexOf(ui->tabDebt);
+    ui->mainTabWidget->setTabText(index, g_Debt);
+    index = ui->mainTabWidget->indexOf(ui->tabCalculate);
     ui->mainTabWidget->setTabText(index, g_Calculate);
+
+    {
+        /// TODO : tabDebt还没开始制作
+    }
 
     ui->mainTabWidget->setCurrentIndex(ui->mainTabWidget->indexOf(ui->tabStatistics));
 
