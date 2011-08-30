@@ -15,8 +15,11 @@
     功能：
     menuBar的Action
     table上右键点击的contextMenu
+    确定哪个帐户是计算到“余额”里边的
+    Debt的记录
     界面：
     TreeWidget的显示及更新
+    TreeWidget每次点击、双击都resize
     许多个图标
 
   NEED TEST :
