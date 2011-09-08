@@ -37,7 +37,9 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QString strDbName;
 
-    g_WorkDir = getWorkDir(QString(argv[0]));
+    QString argv_0 = QString::fromLocal8Bit(argv[0]);
+
+    g_WorkDir = getWorkDir(argv_0);
 
     QDir dataDir(g_WorkDir + g_DatabaseDir);
     if (!dataDir.exists()) {
@@ -47,7 +49,7 @@ int main(int argc, char *argv[])
 
     QString argv_1;
     if (argc > 1) {
-        argv_1 = QString(argv[1]);
+        argv_1 = QString::fromLocal8Bit(argv[1]);
     }
     strDbName = initDatabaseFile(argv_1);
 
