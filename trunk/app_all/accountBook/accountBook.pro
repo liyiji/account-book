@@ -60,5 +60,6 @@ SOURCES +=  ABSqlQuery.cpp
 HEADERS +=  ABDefines.h
 
 RESOURCES += ../../qrc/accountBook.qrc
+RC_FILE   += ../../qrc/accountBook.rc
 
 LIBS    +=  -L../../../bin_accountBook/ -lmd5
