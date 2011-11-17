@@ -171,7 +171,7 @@ void ABTransactionDetail::initUiByType(TransactionType dialogType)
 
         /// 初始化 To Account 列表
         ui->comboBox_2->clear();
-        ui->comboBox_2->addItems(accountList());
+        ui->comboBox_2->addItems(accountNameList());
     } else if (dialogType == Expense) {
         setWindowTitle(QString("Add New ") + g_Expense);
         ui->label_5->setText("From Account :");
@@ -187,7 +187,7 @@ void ABTransactionDetail::initUiByType(TransactionType dialogType)
 
         /// 初始化 From Account 列表
         ui->comboBox_2->clear();
-        ui->comboBox_2->addItems(accountList());
+        ui->comboBox_2->addItems(accountNameList());
     } else if (dialogType == Liquidity) {
         setWindowTitle(QString("Add New ") + g_Liquidity);
         ui->label_3->setText("From Account :");
@@ -196,11 +196,11 @@ void ABTransactionDetail::initUiByType(TransactionType dialogType)
 
         /// 初始化 From Account 列表
         ui->comboBox->clear();
-        ui->comboBox->addItems(accountList());
+        ui->comboBox->addItems(accountNameList());
 
         /// 初始化 To Account 列表
         ui->comboBox_2->clear();
-        ui->comboBox_2->addItems(accountList());
+        ui->comboBox_2->addItems(accountNameList());
     } else {
         assert(0);
     }
@@ -330,6 +330,23 @@ void ABTransactionDetail::accept()
             }
         } else {
             assert(0);
+        }
+        QString Type;
+        if (m_dialogType == Income) {
+            Type = g_Income;
+        } else if (m_dialogType == Expense) {
+            Type = g_Expense;
+        } else if (m_dialogType == Liquidity) {
+            Type = g_Liquidity;
+        }
+        QString CategoryMid = m_strCategory.split(CategorySeparator).at(0);
+        QString CategorySmall = m_strCategory.split(CategorySeparator).at(1);
+        if (transactionExists(Type, CategoryMid, CategorySmall,
+                              m_iYear, m_iMonth, m_iDay, m_iHour, m_iMinute,
+                              m_fSum,
+                              m_strFromAccount, m_strToAccount, m_strDetail)) {
+            errMsgList.append("Error : Same transaction exists.");
+            bFoundError = true;
         }
     }
 

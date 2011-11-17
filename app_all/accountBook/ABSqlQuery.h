@@ -94,7 +94,10 @@ void renameCategory(QString bigType,
 void updateTransaction(TransactionItem oriItem, TransactionItem newItem);
 
 /// 返回当前的Account Name List
-QStringList accountList();
+QStringList accountNameList();
+
+/// 返回全部Account
+QVector<AccountItem> accountList();
 
 /// 返回Surplus为0的Account Name List
 QStringList surplus0AccountList();
@@ -124,6 +127,9 @@ QStringList transactionList(int beginYear = 0,
                             int endHour = 23,
                             int endMinute = 59);
 
+/// 返回全部Transaction，按照时间排序
+QVector<TransactionItem> allTransactions();
+
 /// 返回某年或者某年某月所有的Transaction，按照时间排序
 QVector<TransactionItem> getTransactionsByMonth(int iYear, QString strMonth);
 
@@ -135,6 +141,20 @@ bool accountExists(QString accountName);
 
 /// 判断Category是否存在
 bool categoryExists(QString bigType, QString midType, QString smallType = "");
+
+/// 判断Transaction是否存在
+bool transactionExists(QString Type,
+                      QString CategoryMid,
+                      QString CategorySmall,
+                      int Year,
+                      int Month,
+                      int Day,
+                      int Hour,
+                      int Minute,
+                      float Sum,
+                      QString FromAccount = "",
+                      QString ToAccount   = "",
+                      QString Detail      = "");
 
 /// 根据日期时间dt，得到，到dt为止，所有的account的surplus
 /// 在当前时间点发生的交易，按照已经发生结束计算
@@ -162,5 +182,7 @@ void singleDeleteItemInCategory(QString BigType,
                                 QString MidType,
                                 QString SmallType);
 
+/// 强制修改某个Account的Surplus
+void forceChangeSurplus(QString accountName, float surplus);
 
 #endif // ABSQLQUERY_H

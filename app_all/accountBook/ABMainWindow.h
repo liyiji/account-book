@@ -57,6 +57,7 @@ private slots:
     void slotAddNewLiquidity();
     void slotEditCurrentTransactionItem();
     void slotDeleteCurrentTransactionItem();
+    void slotRecalculateSurplusOfAllAccounts();
     void slotResizeColumnsAndRow();
     void slotLoadDataOfCurMonth();
     void slotShowBigTypeInTree();

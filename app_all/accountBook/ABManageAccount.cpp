@@ -77,7 +77,7 @@ void ABManageAccount::initAccountData()
     ui->lineNew->clear();
 
     ui->comboEdit->addItem("");
-    ui->comboEdit->addItems(accountList());
+    ui->comboEdit->addItems(accountNameList());
 
     ui->comboDelete->addItem("");
     ui->comboDelete->addItems(surplus0AccountList());
@@ -93,7 +93,7 @@ bool ABManageAccount::apply()
             if (ui->lineNew->text().isEmpty()) {
                 errMsgList.append("Error : New account name is empty.");
             } else {
-                QStringList names = accountList();
+                QStringList names = accountNameList();
                 for (int i = 0; i < names.count(); i++) {
                     if (names.at(i) == ui->lineNew->text()) {
                         QString str = QString("Error : Account \"") + ui->lineNew->text() + QString("\" exists.");
@@ -111,7 +111,7 @@ bool ABManageAccount::apply()
                 if (ui->lineEdit->text().isEmpty()) {
                     errMsgList.append("Error : New account name is empty.");
                 } else {
-                    QStringList names = accountList();
+                    QStringList names = accountNameList();
                     for (int i = 0; i < names.count(); i++) {
                         if (names.at(i) == ui->lineEdit->text()) {
                             QString str = QString("Error : Account \"") + ui->lineEdit->text() + QString("\" exists.");
