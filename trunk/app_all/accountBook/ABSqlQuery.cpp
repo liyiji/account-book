@@ -361,60 +361,11 @@ void deleteItemInTransaction(QString Type,
         ToAccount == g_Expense;
     }
 
-    QSqlQuery q6;
-    QString s6;
-    s6.append("SELECT * FROM ");
-    s6.append(TableNameTransaction);
-    s6.append(" WHERE Type = '");
-    s6.append(Type);
-    s6.append("' AND CategoryMid = '");
-    s6.append(CategoryMid);
-    s6.append("' AND CategorySmall = '");
-    s6.append(CategorySmall);
-    s6.append("' AND Year = ");
-    s6.append(QString::number(Year));
-    s6.append(" AND Month = ");
-    s6.append(QString::number(Month));
-    s6.append(" AND Day = ");
-    s6.append(QString::number(Day));
-    s6.append(" AND Hour = ");
-    s6.append(QString::number(Hour));
-    s6.append(" AND Minute = ");
-    s6.append(QString::number(Minute));
-    s6.append(" AND Sum = ");
-    s6.append(QString::number(Sum));
-    if (!FromAccount.isEmpty()) {
-        s6.append(" AND FromAccount = '");
-        s6.append(FromAccount);
-        s6.append("'");
-    }
-    if (!ToAccount.isEmpty()) {
-        s6.append(" AND ToAccount = '");
-        s6.append(ToAccount);
-        s6.append("'");
-    }
-    if (!Detail.isEmpty()) {
-        s6.append(" AND Detail = '");
-        s6.append(Detail);
-        s6.append("'");
-    }
-    if (!InsertTime.isEmpty()) {
-        s6.append(" AND InsertTime = '");
-        s6.append(InsertTime);
-        s6.append("'");
-    }
-    if (!q6.exec(s6)) warnMsgDatabaseOperationFailed();
-    int nFoundCount = 0;
-    while (q6.next()) {
-        nFoundCount++;
-    }
-    if (nFoundCount == 0) {
+    if (transactionExists(Type, CategoryMid, CategorySmall,
+                         Year, Month, Day, Hour, Minute,
+                         Sum, FromAccount, ToAccount, Detail) == false) {
         warnMsgItemNotExists();
         return;
-    } else if (nFoundCount == 1) {
-        /// do nothing
-    } else if (nFoundCount > 1) {
-        assert(0);
     }
 
     if (Type == g_Income) {
@@ -730,7 +681,7 @@ void updateTransaction(TransactionItem oriItem, TransactionItem newItem)
                             newItem.InsertTime);
 }
 
-QStringList accountList()
+QStringList accountNameList()
 {
     QStringList names;
 
@@ -745,6 +696,34 @@ QStringList accountList()
     qSort(names);
 
     return names;
+}
+
+QVector<AccountItem> accountList()
+{
+    QVector<AccountItem> vec;
+
+    QSqlQuery q1;
+    QString s1;
+    s1.append("SELECT * FROM ");
+    s1.append(TableNameAccount);
+    s1.append(" ORDER BY Name");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+    while (q1.next()) {
+
+        AccountItem curItem;
+        curItem.Name         = q1.value(0).toString();
+        curItem.CreateYear   = q1.value(0).toInt();
+        curItem.CreateMonth  = q1.value(0).toInt();
+        curItem.CreateDay    = q1.value(0).toInt();
+        curItem.CreateHour   = q1.value(0).toInt();
+        curItem.CreateMinute = q1.value(0).toInt();
+        curItem.Surplus      = q1.value(0).toDouble();
+        curItem.InsertTime   = q1.value(0).toString();
+
+        vec.append(curItem);
+    }
+
+    return vec;
 }
 
 QStringList surplus0AccountList()
@@ -1045,6 +1024,39 @@ QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beg
     return sl;
 }
 
+QVector<TransactionItem> allTransactions()
+{
+    QVector<TransactionItem> vec;
+
+    QSqlQuery q1;
+    QString s1;
+    s1.append("SELECT * FROM ");
+    s1.append(TableNameTransaction);
+    s1.append(" ORDER BY Month, Day, Hour, Minute");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+    while (q1.next()) {
+
+        TransactionItem curItem;
+        curItem.Type            = q1.value(0).toString();
+        curItem.CategoryMid     = q1.value(1).toString();
+        curItem.CategorySmall   = q1.value(2).toString();
+        curItem.Year            = q1.value(3).toInt();
+        curItem.Month           = q1.value(4).toInt();
+        curItem.Day             = q1.value(5).toInt();
+        curItem.Hour            = q1.value(6).toInt();
+        curItem.Minute          = q1.value(7).toInt();
+        curItem.Sum             = q1.value(8).toDouble();
+        curItem.FromAccount     = q1.value(9).toString();
+        curItem.ToAccount       = q1.value(10).toString();
+        curItem.Detail          = q1.value(11).toString();
+        curItem.InsertTime      = q1.value(12).toString();
+
+        vec.append(curItem);
+    }
+
+    return vec;
+}
+
 QVector<TransactionItem> getTransactionsByMonth(int iYear, QString strMonth)
 {
     QVector<TransactionItem> vec;
@@ -1177,6 +1189,75 @@ bool categoryExists(QString bigType, QString midType, QString smallType)
     }
 }
 
+bool transactionExists(QString Type,
+                      QString CategoryMid,
+                      QString CategorySmall,
+                      int Year,
+                      int Month,
+                      int Day,
+                      int Hour,
+                      int Minute,
+                      float Sum,
+                      QString FromAccount,
+                      QString ToAccount,
+                      QString Detail)
+{
+    if (Type == g_Income) {
+        FromAccount = g_Income;
+    } else if (Type == g_Expense) {
+        ToAccount == g_Expense;
+    }
+
+    QSqlQuery q6;
+    QString s6;
+    s6.append("SELECT * FROM ");
+    s6.append(TableNameTransaction);
+    s6.append(" WHERE Type = '");
+    s6.append(Type);
+    s6.append("' AND CategoryMid = '");
+    s6.append(CategoryMid);
+    s6.append("' AND CategorySmall = '");
+    s6.append(CategorySmall);
+    s6.append("' AND Year = ");
+    s6.append(QString::number(Year));
+    s6.append(" AND Month = ");
+    s6.append(QString::number(Month));
+    s6.append(" AND Day = ");
+    s6.append(QString::number(Day));
+    s6.append(" AND Hour = ");
+    s6.append(QString::number(Hour));
+    s6.append(" AND Minute = ");
+    s6.append(QString::number(Minute));
+    s6.append(" AND Sum = ");
+    s6.append(QString::number(Sum));
+    if (!FromAccount.isEmpty()) {
+        s6.append(" AND FromAccount = '");
+        s6.append(FromAccount);
+        s6.append("'");
+    }
+    if (!ToAccount.isEmpty()) {
+        s6.append(" AND ToAccount = '");
+        s6.append(ToAccount);
+        s6.append("'");
+    }
+    if (!Detail.isEmpty()) {
+        s6.append(" AND Detail = '");
+        s6.append(Detail);
+        s6.append("'");
+    }
+    if (!q6.exec(s6)) warnMsgDatabaseOperationFailed();
+    int nFoundCount = 0;
+    while (q6.next()) {
+        nFoundCount++;
+    }
+
+    if (nFoundCount == 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC)
 {
     QStringList sl;
@@ -1185,7 +1266,7 @@ QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC)
     bool b = isDtLaterThanLatestTransaction(dt);
 
     QMap<QString, float> map;
-    QStringList slAccountName = accountList();
+    QStringList slAccountName = accountNameList();
     for (int i = 0; i < slAccountName.count(); i++) {
         map.insert(slAccountName.at(i), 0.0);
     }
@@ -1404,4 +1485,28 @@ void singleDeleteItemInCategory(QString BigType,
         s1.append("'");
         if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
     }
+}
+
+void forceChangeSurplus(QString accountName, float surplus)
+{
+    if (accountName == g_Income || accountName == g_Expense) {
+        warnMsgParameterInvalid();
+        return;
+    }
+
+    if (!accountExists(accountName)) {
+        warnMsgParameterInvalid();
+        return;
+    }
+
+    QSqlQuery q1;
+    QString s1;
+    s1.append("UPDATE ");
+    s1.append(TableNameAccount);
+    s1.append(" SET Surplus = ");
+    s1.append(QString::number(surplus));
+    s1.append(" WHERE Name = '");
+    s1.append(accountName);
+    s1.append("'");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
 }

@@ -956,6 +956,8 @@ void ABMainWindow::slotMenuAction(QAction *action)
         exportTransactionsAsTextFile(true);
     } else if (action == ui->actionSet_Password) {
         setNewPassword();
+    } else if (action == ui->actionRecalculate_Surplus) {
+        slotRecalculateSurplusOfAllAccounts();
     }
 }
 
@@ -1465,6 +1467,41 @@ void ABMainWindow::slotDeleteCurrentTransactionItem()
     }
 
     loadData(ui->comboBox->currentText().toInt(), ui->comboBox_2->currentText());
+}
+
+void ABMainWindow::slotRecalculateSurplusOfAllAccounts()
+{
+    QVector<TransactionItem> vecTransactions = allTransactions();
+    QVector<AccountItem> vecAccounts = accountList();
+    for (int i = 0; i < vecAccounts.count(); i++)
+    {
+        AccountItem& curItem = vecAccounts[i];
+        curItem.Surplus = 0.0;
+    }
+    for (int i = 0; i < vecTransactions.count(); i++)
+    {
+        TransactionItem& curTrans = vecTransactions[i];
+        for (int j = 0; j < vecAccounts.count(); j++)
+        {
+            AccountItem& curAcc = vecAccounts[j];
+            if (curTrans.FromAccount == curAcc.Name)
+            {
+                curAcc.Surplus -= curTrans.Sum;
+            }
+            if (curTrans.ToAccount == curAcc.Name)
+            {
+                curAcc.Surplus += curTrans.Sum;
+            }
+        }
+    }
+
+    for (int i = 0; i < vecAccounts.count(); i++)
+    {
+        AccountItem curItem = vecAccounts[i];
+        forceChangeSurplus(curItem.Name, curItem.Surplus);
+    }
+
+    slotReloadCurTimeAccountStatus();
 }
 
 void ABMainWindow::slotResizeColumnsAndRow()
