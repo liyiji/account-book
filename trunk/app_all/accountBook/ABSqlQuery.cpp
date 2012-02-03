@@ -9,6 +9,7 @@
 #include <QMessageBox>
 
 #include "ABSqlQuery.h"
+#include "ABDefines.h"
 #include "ABFunction.h"
 
 bool createConnection(QString strDbName, QString strPwd)
@@ -24,11 +25,10 @@ bool createConnection(QString strDbName, QString strPwd)
         return false;
     }
 
-    initDatabase(db);
-    return true;
+    return initDatabase(db);
 }
 
-void initDatabase(QSqlDatabase& db)
+bool initDatabase(QSqlDatabase& db)
 {
     QStringList slTables = db.tables();
 
@@ -60,6 +60,22 @@ void initDatabase(QSqlDatabase& db)
 
     extern bool g_UsePassword;
     g_UsePassword = slTables.contains(TableNamePassword);
+
+    if (slTables.contains(TableNameVersion) == false) {
+        createVersionTable();
+        int version = 1;
+        insertItemInVersion(version);
+    }
+
+    if (checkVersion())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
 }
 
 void createAccountTable()
@@ -75,7 +91,7 @@ void createAccountTable()
     s1.append("CreateDay    int, ");
     s1.append("CreateHour   int, ");
     s1.append("CreateMinute int, ");
-    s1.append("Surplus      float, ");
+    s1.append("Surplus      double, ");
     s1.append("InsertTime   char(100)");
     s1.append(")");
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
@@ -111,7 +127,7 @@ void createTransactionTable()
     s1.append("Day              int, ");
     s1.append("Hour             int, ");
     s1.append("Minute           int, ");
-    s1.append("Sum              float, ");
+    s1.append("Sum              double, ");
     s1.append("FromAccount      char(100), ");
     s1.append("ToAccount        char(100), ");
     s1.append("Detail           char(100), ");
@@ -128,6 +144,42 @@ void createPwdTable()
     s1.append(TableNamePassword);
     s1.append(" (Use bool)");
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+}
+
+void createVersionTable()
+{
+    QSqlQuery q1;
+    QString s1;
+    s1.append("CREATE TABLE ");
+    s1.append(TableNameVersion);
+    s1.append(" (Version int)");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+}
+
+bool checkVersion()
+{
+    QSqlQuery q1;
+    QString s1;
+    s1.append("SELECT * FROM ");
+    s1.append(TableNameVersion);
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
+    int count = 0;
+    bool versionInfo = false;
+    while (q1.next()) {
+        count++;
+        if (count > 1)
+        {
+            warnMsgItemAlreadyExists();
+            versionInfo = false;
+            break;
+        }
+        int version = q1.value(0).toInt();
+        if (version == g_CurrentVersionOfCodeForDatabase)
+        {
+            versionInfo = true;
+        }
+    }
+    return versionInfo;
 }
 
 void dropPwdtable()
@@ -236,6 +288,18 @@ void insertItemInTransaction(QString Type, QString CategoryMid, QString Category
     if (ToAccount != g_Expense) {
         updateSurplusOfAccount(ToAccount, Sum);
     }
+}
+
+void insertItemInVersion(int version)
+{
+    QSqlQuery q1;
+    QString s1;
+    s1.append("INSERT INTO ");
+    s1.append(TableNameVersion);
+    s1.append(" (Version) VALUES ('");
+    s1.append(QString::number(version));
+    s1.append("')");
+    if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
 }
 
 void deleteItemInAccount(QString Name)

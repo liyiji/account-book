@@ -26,23 +26,28 @@ ABMainWindow::ABMainWindow(QString strDatabaseFileName, QWidget *parent) : QMain
     ui->setupUi(this);
 
     m_strDatabaseName = strDatabaseFileName;
-    createConnection(m_strDatabaseName);
-
-    extern bool g_UsePassword;
-    if (g_UsePassword) {
-        ABInputPassword dlg(ABInputPassword::InputPwd);
-        if (dlg.exec() != QDialog::Accepted) {
-            /// TODO : 这里要进行处理，不能让程序直接崩溃
-            assert(0);
+    if (createConnection(m_strDatabaseName))
+    {
+        extern bool g_UsePassword;
+        if (g_UsePassword) {
+            ABInputPassword dlg(ABInputPassword::InputPwd);
+            if (dlg.exec() != QDialog::Accepted) {
+                exit(-1);
+            }
         }
+
+        initUi();
+        initConnection();
+        slotLoadDataOfCurMonth(); /// 从数据库中读取
+        slotResizeColumnsAndRow(); /// TODO : 是否应该留下
+
+        resize(1, 1);
     }
-
-    initUi();
-    initConnection();
-    slotLoadDataOfCurMonth(); /// 从数据库中读取
-    slotResizeColumnsAndRow(); /// TODO : 是否应该留下
-
-    resize(1, 1);
+    else
+    {
+        QMessageBox::critical(this, "Error", "Database version is wrong.\nPlease run convert tool first.");
+        exit(-1);
+    }
 }
 
 ABMainWindow::~ABMainWindow()

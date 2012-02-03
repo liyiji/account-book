@@ -19,13 +19,17 @@
 bool createConnection(QString strDbName, QString strPwd = "");
 
 /// 对数据库进行初始化
-void initDatabase(QSqlDatabase& db);
+bool initDatabase(QSqlDatabase& db);
 
 /// 创建Table
 void createAccountTable();
 void createCategoryTable();
 void createTransactionTable();
 void createPwdTable();
+void createVersionTable();
+
+/// 检查数据库版本与程序版本是否相符
+bool checkVersion();
 
 /// drop table
 void dropPwdtable();
@@ -43,6 +47,8 @@ void insertItemInTransaction(QString Type, QString CategoryMid, QString Category
                              QString FromAccount, QString ToAccount,
                              QString Detail,
                              QString InsertTime = "");
+
+void insertItemInVersion(int version);
 
 /// 只有符合下列条件的Account才可以删除
 /// 1、余额(Surplus)为0
