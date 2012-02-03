@@ -55,7 +55,7 @@ public:
     int     Day;
     int     Hour;
     int     Minute;
-    float   Sum;
+    double  Sum;
     QString FromAccount;
     QString ToAccount;
     QString Detail;
@@ -70,7 +70,7 @@ public:
     int     CreateDay;
     int     CreateHour;
     int     CreateMinute;
-    float   Surplus;
+    double  Surplus;
     QString InsertTime;
 };
 
@@ -82,7 +82,7 @@ public:
 /// CreateDay       int,
 /// CreateHour      int,
 /// CreateMinute    int,
-/// Surplus         float,
+/// Surplus         double,
 /// InsertTime      char(100)
 /// Name, CreateYear, CreateMonth, CreateDay, CreateHour, CreateMinute, Surplus, InsertTime
 
@@ -102,7 +102,7 @@ public:
 /// Day int,
 /// Hour int,
 /// Minute int,
-/// Sum float,
+/// Sum double,
 /// FromAccount char(100),
 /// ToAccount char(100),
 /// Detail char(100),

@@ -33,13 +33,13 @@ void dropPwdtable();
 /// Insert item
 void insertItemInAccount(QString Name,
                          int CreateYear, int CreateMonth, int CreateDay, int CreateHour, int CreateMinute,
-                         /*float Surplus, */QString InsertTime = "");
+                         /*double Surplus, */QString InsertTime = "");
 
 void insertItemInCategory(QString BigType, QString MidType, QString SmallType = "", QString InsertTime = "");
 
 void insertItemInTransaction(QString Type, QString CategoryMid, QString CategorySmall,
                              int Year, int Month, int Day, int Hour, int Minute,
-                             float Sum,
+                             double Sum,
                              QString FromAccount, QString ToAccount,
                              QString Detail,
                              QString InsertTime = "");
@@ -70,7 +70,7 @@ void deleteItemInTransaction(QString Type,
                              int Day,
                              int Hour,
                              int Minute,
-                             float Sum,
+                             double Sum,
                              QString FromAccount = "",
                              QString ToAccount   = "",
                              QString Detail      = "",
@@ -82,7 +82,7 @@ void renameAccount(QString oriName, QString newName);
 
 /// 给一个Account更新Surplus
 /// 需要保证此Account已经存在，否则直接return
-void updateSurplusOfAccount(QString accountName, float sumChange);
+void updateSurplusOfAccount(QString accountName, double sumChange);
 
 /// 修改一个Category的名字
 void renameCategory(ABCategory oriCtg, ABCategory newCtg);
@@ -151,7 +151,7 @@ bool transactionExists(QString Type,
                       int Day,
                       int Hour,
                       int Minute,
-                      float Sum,
+                      double Sum,
                       QString FromAccount = "",
                       QString ToAccount   = "",
                       QString Detail      = "");
@@ -169,11 +169,11 @@ bool isDtLaterThanLatestTransaction(QDateTime dt);
 /// 请勿在其他地方调用这三个函数，ABSqlQuery.h的其他函数中进行调用
 void singleInsertItemInAccount(QString Name,
                                int CreateYear, int CreateMonth, int CreateDay, int CreateHour, int CreateMinute,
-                               float Surplus, QString InsertTime);
+                               double Surplus, QString InsertTime);
 void singleInsertItemInCategory(QString BigType, QString MidType, QString SmallType, QString InsertTime);
 void singleInsertItemInTransaction(QString Type, QString CategoryMid, QString CategorySmall,
                                    int Year, int Month, int Day, int Hour, int Minute,
-                                   float Sum,
+                                   double Sum,
                                    QString FromAccount, QString ToAccount,
                                    QString Detail,
                                    QString InsertTime);
@@ -183,6 +183,6 @@ void singleDeleteItemInCategory(QString BigType,
                                 QString SmallType);
 
 /// 强制修改某个Account的Surplus
-void forceChangeSurplus(QString accountName, float surplus);
+void forceChangeSurplus(QString accountName, double surplus);
 
 #endif // ABSQLQUERY_H
