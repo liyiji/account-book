@@ -3,6 +3,8 @@
 
 #include <QString>
 
+const int     g_CurrentVersionOfCodeForDatabase = 1;
+
 const QString g_IconStr     = QString(":/test.png");
 
 const QString g_DatabaseDir = QString("database_accountBook/");
@@ -25,6 +27,7 @@ const QString TableNameAccount      = QString("ABAccount");
 const QString TableNameCategory     = QString("ABCategory");
 const QString TableNameTransaction  = QString("ABTransaction");
 const QString TableNamePassword     = QString("ABPassword");
+const QString TableNameVersion      = QString("ABVersion");
 
 enum TreeItemType {
     BigTypeItem,
