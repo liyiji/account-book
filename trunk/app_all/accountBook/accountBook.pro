@@ -5,21 +5,8 @@ DEPENDPATH += .
 INCLUDEPATH += . \
                ../../lib_all/md5
 
-QMAKE_CC = gcc
-QMAKE_CXX = g++
-QMAKE_LINK = g++
-
-DESTDIR = ../../../bin_accountBook
-
-OBJECTS_DIR = .obj
-MOC_DIR     = .moc
-RCC_DIR     = .rcc
-UI_DIR      = .uidir
-
+include(../../compile_parameter/compile_parameter.mk)
 QT      +=  gui sql
-CONFIG  +=  warn_on
-
-#DEFINES += DEBUG_VERSION
 
 HEADERS +=
 SOURCES +=
