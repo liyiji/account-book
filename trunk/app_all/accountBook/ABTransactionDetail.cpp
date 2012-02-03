@@ -62,7 +62,7 @@ void ABTransactionDetail::setInitData(QDate date,
                                      ABCategory category,
                                      QString fromAccount,
                                      QString toAccount,
-                                     float sum,
+                                     double sum,
                                      QString detail)
 {
     ui->dateEdit->setDate(date);
