@@ -141,7 +141,7 @@ void dropPwdtable()
 
 void insertItemInAccount(QString Name,
                          int CreateYear, int CreateMonth, int CreateDay, int CreateHour, int CreateMinute,
-                         /*float Surplus, */QString InsertTime)
+                         /*double Surplus, */QString InsertTime)
 {
     if (Name == g_Income || Name == g_Expense) {
         warnMsgParameterInvalid();
@@ -149,7 +149,7 @@ void insertItemInAccount(QString Name,
     }
 
     if (!accountExists(Name)) {
-        float Surplus = 0.0;
+        double Surplus = 0.0;
         if (InsertTime.isEmpty()) {
             InsertTime = getInsertTime();
         }
@@ -192,7 +192,7 @@ void insertItemInCategory(QString BigType, QString MidType, QString SmallType, Q
 
 void insertItemInTransaction(QString Type, QString CategoryMid, QString CategorySmall,
                              int Year, int Month, int Day, int Hour, int Minute,
-                             float Sum,
+                             double Sum,
                              QString FromAccount, QString ToAccount,
                              QString Detail,
                              QString InsertTime)
@@ -250,7 +250,7 @@ void deleteItemInAccount(QString Name)
     s1.append("'");
     if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
     while (q1.next()) {
-        float surplusOfName = q1.value(0).toDouble();
+        double surplusOfName = q1.value(0).toDouble();
         if (surplusOfName != 0) {
             warnMsgDisallowedOperation();
             return;
@@ -349,7 +349,7 @@ void deleteItemInTransaction(QString Type,
                              int Day,
                              int Hour,
                              int Minute,
-                             float Sum,
+                             double Sum,
                              QString FromAccount,
                              QString ToAccount,
                              QString Detail,
@@ -400,7 +400,7 @@ void deleteItemInTransaction(QString Type,
     s5.append(" AND Minute = ");
     s5.append(QString::number(Minute));
     s5.append(" AND Sum = ");
-    s5.append(QString::number(Sum));
+    s5.append(QString::number(Sum, 'f'));
     if (!FromAccount.isEmpty()) {
         s5.append(" AND FromAccount = '");
         s5.append(FromAccount);
@@ -477,14 +477,14 @@ void renameAccount(QString oriName, QString newName)
     if (!q4.exec(s4)) warnMsgDatabaseOperationFailed();
 }
 
-void updateSurplusOfAccount(QString accountName, float sumChange)
+void updateSurplusOfAccount(QString accountName, double sumChange)
 {
     if (accountName == g_Income || accountName == g_Expense || sumChange == 0.0) {
         warnMsgParameterInvalid();
         return;
     }
 
-    float oriSurplus = 0.0;
+    double oriSurplus = 0.0;
 
     if (!accountExists(accountName)) {
         warnMsgParameterInvalid();
@@ -508,7 +508,7 @@ void updateSurplusOfAccount(QString accountName, float sumChange)
     s2.append("UPDATE ");
     s2.append(TableNameAccount);
     s2.append(" SET Surplus = ");
-    s2.append(QString::number(oriSurplus + sumChange));
+    s2.append(QString::number(oriSurplus + sumChange, 'f'));
     s2.append(" WHERE Name = '");
     s2.append(accountName);
     s2.append("'");
@@ -924,7 +924,7 @@ QStringList transactionList(int beginYear, int beginMonth, int beginDay, int beg
         int day = q1.value(5).toInt();
         int hour = q1.value(6).toInt();
         int minute = q1.value(7).toInt();
-        float sum = q1.value(8).toDouble();
+        double sum = q1.value(8).toDouble();
         QString fromAccount = q1.value(9).toString();
         QString toAccount = q1.value(10).toString();
         QString detail = q1.value(11).toString();
@@ -1197,7 +1197,7 @@ bool transactionExists(QString Type,
                       int Day,
                       int Hour,
                       int Minute,
-                      float Sum,
+                      double Sum,
                       QString FromAccount,
                       QString ToAccount,
                       QString Detail)
@@ -1229,7 +1229,7 @@ bool transactionExists(QString Type,
     s6.append(" AND Minute = ");
     s6.append(QString::number(Minute));
     s6.append(" AND Sum = ");
-    s6.append(QString::number(Sum));
+    s6.append(QString::number(Sum, 'f'));
     if (!FromAccount.isEmpty()) {
         s6.append(" AND FromAccount = '");
         s6.append(FromAccount);
@@ -1265,7 +1265,7 @@ QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC)
     /// 判断dt是否比所有Transaction最新的时间还往后，如果是的话，直接取Surplus，否则要计算
     bool b = isDtLaterThanLatestTransaction(dt);
 
-    QMap<QString, float> map;
+    QMap<QString, double> map;
     QStringList slAccountName = accountNameList();
     for (int i = 0; i < slAccountName.count(); i++) {
         map.insert(slAccountName.at(i), 0.0);
@@ -1279,7 +1279,7 @@ QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC)
         if (!q1.exec(s1)) warnMsgDatabaseOperationFailed();
         while (q1.next()) {
             QString strName;
-            float fSurplus;
+            double fSurplus;
             strName = q1.value(0).toString();
             fSurplus = q1.value(1).toDouble();
             map[strName] = fSurplus;
@@ -1299,7 +1299,7 @@ QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC)
             int minute = q1.value(4).toInt();
             QString fromAccount = q1.value(5).toString();
             QString toAccount = q1.value(6).toString();
-            float sum = q1.value(7).toDouble();
+            double sum = q1.value(7).toDouble();
 
             QDateTime dtTran(QDate(year, month, day),
                              QTime(hour, minute));
@@ -1317,15 +1317,15 @@ QStringList getAllAccountSurplusByDateTime(QDateTime dt, bool bDESC)
     }
 
     if (bDESC) {
-        QMap<QString, float>::const_iterator it = map.constEnd();
+        QMap<QString, double>::const_iterator it = map.constEnd();
         while (it != map.constBegin()) {
             --it;
-            sl.append(it.key() + CategorySeparator + QString::number(it.value()));
+            sl.append(it.key() + CategorySeparator + QString::number(it.value(), 'f'));
         }
     } else {
-        QMap<QString, float>::const_iterator it = map.constBegin();
+        QMap<QString, double>::const_iterator it = map.constBegin();
         while (it != map.constEnd()) {
-            sl.append(it.key() + CategorySeparator + QString::number(it.value()));
+            sl.append(it.key() + CategorySeparator + QString::number(it.value(), 'f'));
             ++it;
         }
     }
@@ -1367,7 +1367,7 @@ bool isDtLaterThanLatestTransaction(QDateTime dt)
 
 void singleInsertItemInAccount(QString Name,
                                int CreateYear, int CreateMonth, int CreateDay, int CreateHour, int CreateMinute,
-                               float Surplus, QString InsertTime)
+                               double Surplus, QString InsertTime)
 {
     QSqlQuery q1;
     QString s1;
@@ -1386,7 +1386,7 @@ void singleInsertItemInAccount(QString Name,
     s1.append(", ");
     s1.append(QString::number(CreateMinute));
     s1.append(", ");
-    s1.append(QString::number(Surplus));
+    s1.append(QString::number(Surplus, 'f'));
     s1.append(", '");
     s1.append(InsertTime);
     s1.append("')");
@@ -1413,7 +1413,7 @@ void singleInsertItemInCategory(QString BigType, QString MidType, QString SmallT
 
 void singleInsertItemInTransaction(QString Type, QString CategoryMid, QString CategorySmall,
                                    int Year, int Month, int Day, int Hour, int Minute,
-                                   float Sum,
+                                   double Sum,
                                    QString FromAccount, QString ToAccount,
                                    QString Detail,
                                    QString InsertTime)
@@ -1439,7 +1439,7 @@ void singleInsertItemInTransaction(QString Type, QString CategoryMid, QString Ca
     s1.append(", ");
     s1.append(QString::number(Minute));
     s1.append(", ");
-    s1.append(QString::number(Sum));
+    s1.append(QString::number(Sum, 'f'));
     s1.append(", '");
     s1.append(FromAccount);
     s1.append("', '");
@@ -1487,7 +1487,7 @@ void singleDeleteItemInCategory(QString BigType,
     }
 }
 
-void forceChangeSurplus(QString accountName, float surplus)
+void forceChangeSurplus(QString accountName, double surplus)
 {
     if (accountName == g_Income || accountName == g_Expense) {
         warnMsgParameterInvalid();
@@ -1504,7 +1504,7 @@ void forceChangeSurplus(QString accountName, float surplus)
     s1.append("UPDATE ");
     s1.append(TableNameAccount);
     s1.append(" SET Surplus = ");
-    s1.append(QString::number(surplus));
+    s1.append(QString::number(surplus, 'f'));
     s1.append(" WHERE Name = '");
     s1.append(accountName);
     s1.append("'");
