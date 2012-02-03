@@ -14,7 +14,7 @@ class ABTransactionDetail : public QDialog {
 public:
     QString m_strCategory;
     int     m_iYear, m_iMonth, m_iDay, m_iHour, m_iMinute;
-    float   m_fSum;
+    double  m_fSum;
     QString m_strFromAccount;
     QString m_strToAccount;
     QString m_strDetail;
@@ -31,7 +31,7 @@ public:
                                 ABCategory category,
                                 QString fromAccount,
                                 QString toAccount,
-                                float sum,
+                                double sum,
                                 QString detail);
 
     QString         getTypeStr();
