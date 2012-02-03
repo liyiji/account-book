@@ -22,7 +22,7 @@ bool createConnection(QString strDbName, QString strPwd)
     if (!db.open()) {
         QMessageBox::critical(0, QObject::tr("Database Error"),
                               db.lastError().text());
-        return false;
+        exit(-1);
     }
 
     return initDatabase(db);
@@ -63,7 +63,7 @@ bool initDatabase(QSqlDatabase& db)
 
     if (slTables.contains(TableNameVersion) == false) {
         createVersionTable();
-        int version = 1;
+        int version = g_CurrentVersionOfCodeForDatabase;
         insertItemInVersion(version);
     }
 
