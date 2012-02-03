@@ -486,9 +486,9 @@ void ABMainWindow::showTransactionData(int iYear, QString strMonth)
 
     resetTableWidgetsSettings(false, true, true, true);
 
-    float wholeIncome = 0.0;
-    float wholeExpense = 0.0;
-    float wholeSurplus = 0.0;
+    double wholeIncome = 0.0;
+    double wholeExpense = 0.0;
+    double wholeSurplus = 0.0;
 
     int iMonth = -1;
     if (strMonth != "All") {
@@ -632,7 +632,7 @@ void ABMainWindow::showCategoryData(int iYear, QString strMonth)
         QString bigType     = item.Type;
         QString midType     = item.CategoryMid;
         QString smallType   = item.CategorySmall;
-        float   sum         = item.Sum;
+        double  sum         = item.Sum;
 
         if (bigType == g_Liquidity) {
             if (midType == g_Default && smallType == g_Default)
@@ -662,14 +662,14 @@ void ABMainWindow::showAccountData(QDateTime dt)
     ui->tableAccount->setRowCount(0);
     resetTableWidgetsSettings(true, false, false, false);
 
-    float wholeSurplus = 0.0;
+    double wholeSurplus = 0.0;
 
     QStringList sl = getAllAccountSurplusByDateTime(dt);
     for (int i = 0; i < sl.count(); i++) {
         QString str = sl.at(i);
         QStringList slSplit = str.split(CategorySeparator);
         QString strName = slSplit.at(0);
-        float fSurplus = slSplit.at(1).toDouble();
+        double fSurplus = slSplit.at(1).toDouble();
 
         wholeSurplus += fSurplus;
 
@@ -1177,7 +1177,7 @@ void ABMainWindow::slotEditCurrentTransactionItem()
 
         QString date = list.at(0)->text();
         QString c = list.at(1)->text();
-        float sum = list.at(2)->text().toDouble();
+        double sum = list.at(2)->text().toDouble();
         QString toAccount = list.at(3)->text();
         QString detail = list.at(4)->text();
 
@@ -1234,7 +1234,7 @@ void ABMainWindow::slotEditCurrentTransactionItem()
 
         QString date = list.at(0)->text();
         QString c = list.at(1)->text();
-        float sum = list.at(2)->text().toDouble();
+        double sum = list.at(2)->text().toDouble();
         QString fromAccount = list.at(3)->text();
         QString detail = list.at(4)->text();
 
@@ -1291,7 +1291,7 @@ void ABMainWindow::slotEditCurrentTransactionItem()
 
         QString date = list.at(0)->text();
         QString fromAccount = list.at(1)->text();
-        float sum = list.at(2)->text().toDouble();
+        double sum = list.at(2)->text().toDouble();
         QString toAccount = list.at(3)->text();
         QString detail = list.at(4)->text();
 
@@ -1363,7 +1363,7 @@ void ABMainWindow::slotDeleteCurrentTransactionItem()
 
         QString date = list.at(0)->text();
         QString c = list.at(1)->text();
-        float sum = list.at(2)->text().toDouble();
+        double sum = list.at(2)->text().toDouble();
         QString toAccount = list.at(3)->text();
         QString detail = list.at(4)->text();
 
@@ -1400,7 +1400,7 @@ void ABMainWindow::slotDeleteCurrentTransactionItem()
 
         QString date = list.at(0)->text();
         QString c = list.at(1)->text();
-        float sum = list.at(2)->text().toDouble();
+        double sum = list.at(2)->text().toDouble();
         QString fromAccount = list.at(3)->text();
         QString detail = list.at(4)->text();
 
@@ -1437,7 +1437,7 @@ void ABMainWindow::slotDeleteCurrentTransactionItem()
 
         QString date = list.at(0)->text();
         QString fromAccount = list.at(1)->text();
-        float sum = list.at(2)->text().toDouble();
+        double sum = list.at(2)->text().toDouble();
         QString toAccount = list.at(3)->text();
         QString detail = list.at(4)->text();
 
@@ -1575,7 +1575,7 @@ void ABMainWindow::slotPlus()
     double a1 = ui->lineEdit->text().toDouble(&b1);
     double a2 = ui->lineEdit_2->text().toDouble(&b2);
     if (b1 && b2) {
-        ui->label_6->setText(QString::number(a1 + a2));
+        ui->label_6->setText(QString::number(a1 + a2, 'f'));
         updateCalcLabels();
         ui->label_30->setText(ui->lineEdit->text());
         ui->label_31->setText(ui->label_5->text());
@@ -1594,7 +1594,7 @@ void ABMainWindow::slotMinus()
     double a1 = ui->lineEdit_5->text().toDouble(&b1);
     double a2 = ui->lineEdit_6->text().toDouble(&b2);
     if (b1 && b2) {
-        ui->label_17->setText(QString::number(a1 - a2));
+        ui->label_17->setText(QString::number(a1 - a2, 'f'));
         updateCalcLabels();
         ui->label_30->setText(ui->lineEdit_5->text());
         ui->label_31->setText(ui->label_16->text());
@@ -1613,7 +1613,7 @@ void ABMainWindow::slotMultiply()
     double a1 = ui->lineEdit_7->text().toDouble(&b1);
     double a2 = ui->lineEdit_8->text().toDouble(&b2);
     if (b1 && b2) {
-        ui->label_19->setText(QString::number(a1 * a2));
+        ui->label_19->setText(QString::number(a1 * a2, 'f'));
         updateCalcLabels();
         ui->label_30->setText(ui->lineEdit_7->text());
         ui->label_31->setText(ui->label_18->text());
@@ -1632,7 +1632,7 @@ void ABMainWindow::slotDivide()
     double a1 = ui->lineEdit_9->text().toDouble(&b1);
     double a2 = ui->lineEdit_10->text().toDouble(&b2);
     if (b1 && b2) {
-        ui->label_21->setText(QString::number(a1 / a2));
+        ui->label_21->setText(QString::number(a1 / a2, 'f'));
         updateCalcLabels();
         ui->label_30->setText(ui->lineEdit_9->text());
         ui->label_31->setText(ui->label_20->text());
