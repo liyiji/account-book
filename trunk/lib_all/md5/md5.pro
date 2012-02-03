@@ -4,18 +4,7 @@ TARGET = md5
 DEPENDPATH += .
 INCLUDEPATH += $$DEPENDPATH
 
-QMAKE_CC = gcc
-QMAKE_CXX = g++
-QMAKE_LINK = g++
-
-DESTDIR = ../../../bin_accountBook
-
-OBJECTS_DIR = .obj
-MOC_DIR     = .moc
-RCC_DIR     = .rcc
-UI_DIR      = .uidir
-
-CONFIG 	+=  warn_on
+include(../../compile_parameter/compile_parameter.mk)
 
 HEADERS +=  md5.h
 SOURCES +=  md5.cpp
